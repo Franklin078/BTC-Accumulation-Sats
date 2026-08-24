@@ -12,4 +12,4 @@ Methodological decisions for this project, in my own record. Dates are when the 
 | 6 | 2026-08-23 | Model parameters selected on a pre-registered grid over an early development period with a 12-month embargo; the first registered round produced candidate v1, held fixed | Overlapping windows leak across naive splits; registration keeps reported numbers honest |
 | 7 | 2026-08-24 | Repository name BTC-Accumulation-Sats; private until the study is finished; results published only at completion | My call on presentation and timing |
 | 8 | 2026-08-24 | Further modelling proceeds in registered rounds, each written down before it is run; candidate v1 is a baseline for later rounds, not a final answer | The final model is decided at the end of the study, not at the start |
-| 9 | 2026-08-25 | Supervision updated: Dr Len Patrick Garces and [SECOND SUPERVISOR NAME] | Second supervisor joined the project |
+| 9 | 2026-08-25 | Supervision updated: Dr James Brown and Dr Scott Alexander (Dr Len Patrick Garces has left UTS) | Change of supervisory panel |

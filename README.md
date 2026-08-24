@@ -1,6 +1,6 @@
 # BTC Accumulation (Sats)
 
-Research project on dynamic Bitcoin accumulation strategies. Franklin Kipkorir, Master of Data Science in Quantitative Finance, University of Technology Sydney, in partnership with the Trilemma Foundation (Stacking Sats initiative). Supervisors: Dr Len Patrick Garces and [SECOND SUPERVISOR NAME]. Trilemma project leads: Mohammad Ashkani and Matt Faltyn.
+Research project on dynamic Bitcoin accumulation strategies. Franklin Kipkorir, Master of Data Science in Quantitative Finance, University of Technology Sydney, in partnership with the Trilemma Foundation (Stacking Sats initiative). Supervisors: Dr James Brown and Dr Scott Alexander. Trilemma project leads: Mohammad Ashkani and Matt Faltyn.
 
 The question: uniform dollar cost averaging buys the same amount of Bitcoin every day. Can a rule that varies the daily amount, using only information available at the time, accumulate more satoshis per dollar over 12-month windows, judged by the Trilemma Foundation's published scoring framework?
 
