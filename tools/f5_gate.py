@@ -21,11 +21,24 @@ KEY_LINES = re.compile(
 )
 
 
+KERNEL = "ss-py310"
+
+
+def ensure_kernel():
+    """Register this interpreter as a named Jupyter kernel with an absolute path, so the
+    notebook cannot silently execute under a different Python found on PATH."""
+    r = subprocess.run([sys.executable, "-m", "ipykernel", "install", "--user",
+                        "--name", KERNEL, "--display-name", "Python 3.10 (tournament)"],
+                       capture_output=True, text=True)
+    print("kernel registration:", (r.stdout or r.stderr).strip().splitlines()[-1])
+
+
 def execute_once(tag):
     print(f"--- run {tag}: executing {NB} (this takes a few minutes) ---", flush=True)
     r = subprocess.run(
         [sys.executable, "-m", "jupyter", "nbconvert", "--to", "notebook", "--execute",
-         "--inplace", f"--ExecutePreprocessor.timeout=3600", NB],
+         "--inplace", f"--ExecutePreprocessor.timeout=3600",
+         f"--ExecutePreprocessor.kernel_name={KERNEL}", NB],
         capture_output=True, text=True,
     )
     if r.returncode != 0:
@@ -50,6 +63,7 @@ def main():
     ok = sys.version_info[:2] == (3, 10) and numpy.__version__ == "1.26.4" and pandas.__version__ == "2.3.1"
     print("pinned environment:", "YES" if ok else "NO (wrong interpreter? run with venv-py310)")
 
+    ensure_kernel()
     run1 = execute_once(1)
     run2 = execute_once(2)
     deterministic = run1 == run2 and len(run1) > 0
