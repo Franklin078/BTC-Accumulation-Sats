@@ -1,0 +1,16 @@
+{
+  "protocol": "Pre-registered model selection.\n\nProtocol (fixed before any of these numbers were seen):\n  development windows : starts 2018-01-01 to 2023-06-30 (scored range 2018-01-01 to 2024-06-30)\n  embargo             : starts 2023-07-01 to 2024-06-30 are used by neither side (windows overlap by up to a year)\n  hold-out windows    : starts 2024-07-01 onward (regime A: to 2024-12-31; regime B: to the latest start)\n  selection metric    : 0.5 * win rate + 0.5 * unweighted mean SPD percentile on development windows\n                        (the rho = 0.9 term is deliberately excluded from selection because it is regime-specific)\n  tie-break           : fewer active terms, then smaller m_max\n  grid                : listed below, 72 configurations, each evaluated once\nEvery configuration and its development metrics are written to output/selection_grid.csv.\n",
+  "chosen": {
+    "a_ma": 1.0,
+    "a_dd": 0.5,
+    "bias": 0.2,
+    "a_mvrv": 1.0,
+    "m_max": 5.0
+  },
+  "dev_metrics": {
+    "win_rate": 72.04783258594918,
+    "mean_pct": 44.861165812432816,
+    "rw_spd_pct": 59.31984622471033,
+    "selection_metric": 58.454499199191
+  }
+}

@@ -1,0 +1,8 @@
+venv/
+venv-py310/
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/
+*.pyc
+.DS_Store
+private/

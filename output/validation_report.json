@@ -1,0 +1,62 @@
+{
+  "params": {
+    "ma_len": 200,
+    "a_ma": 1.0,
+    "a_dd": 0.5,
+    "a_win": 0.0,
+    "a_mvrv": 1.0,
+    "dd0": 0.0,
+    "ma0": 0.0,
+    "m_min": 0.25,
+    "m_max": 5.0,
+    "clip_ma": 0.6,
+    "clip_dd": 0.8,
+    "clip_win": 0.5,
+    "clip_mvrv": 3.0,
+    "mvrv_mode": "level",
+    "mvrv0": 1.8,
+    "a_r7": 0.0,
+    "clip_r7": 0.3,
+    "ma_asym": true,
+    "bias": 0.2,
+    "bias_above": null,
+    "win_mode": "mean",
+    "same_day": false
+  },
+  "data_last_day": "2026-08-23",
+  "probe_A": {
+    "probes": 51,
+    "failures": [],
+    "passed": true
+  },
+  "constraints_A": {
+    "windows": 2557,
+    "passed": true,
+    "below_min": 0,
+    "sum_not_one": 0
+  },
+  "probe_B": {
+    "probes": 51,
+    "failures": [],
+    "passed": true
+  },
+  "constraints_B": {
+    "windows": 2792,
+    "passed": true,
+    "below_min": 0,
+    "sum_not_one": 0
+  },
+  "probe_C": {
+    "probes": 51,
+    "failures": [],
+    "passed": true
+  },
+  "constraints_C": {
+    "windows": 3075,
+    "passed": true,
+    "below_min": 0,
+    "sum_not_one": 0
+  },
+  "fast_path_max_diff": 0.0,
+  "all_passed": true
+}

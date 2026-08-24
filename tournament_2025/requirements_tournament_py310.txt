@@ -1,0 +1,16 @@
+numpy==1.26.4
+pandas==2.3.1
+polars==1.31.0
+scipy==1.11.4
+statsmodels==0.14.5
+scikit-learn==1.4.2
+networkx==3.1
+pgmpy==1.0.0
+pymc==5.23.0
+prophet==1.1.7
+requests==2.32.4
+matplotlib==3.10.3
+seaborn==0.13.2
+pyarrow==20.0.0
+ipykernel 
+jupyterlab

@@ -1,0 +1,6 @@
+e3b0c44298fc1c149afb *template/__init__.py
+a22a3d4a408dfb1c31dc *template/backtest_template.py
+f78d28025b9233885cf7 *template/model_development_template.py
+96365f00910ad5b4f1b7 *template/prelude_template.py
+c37595daa7520668fd13 *tournament_2025/model_development_template.ipynb
+11ddc13f95e7a5764311 *data/official_2025/stacking_sats_data.parquet
