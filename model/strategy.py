@@ -59,6 +59,8 @@ class Params:
     clip_mvrv: float = 3.0   # |mvrv term| clipped here
     mvrv_mode: str = "level" # "level": (MVRV - mvrv0); "z": 365-day z-score of MVRV
     mvrv0: float = 1.8       # neutral MVRV level for mvrv_mode == "level"
+    a_flow: float = 0.0      # weight on the exchange netflow z-score (net inflow to exchanges -> buy less)
+    clip_flow: float = 3.0   # |netflow z| clipped here
     a_r7: float = 0.0        # weight on the trailing 7-day return (negative return -> buy more)
     clip_r7: float = 0.3
     ma_asym: bool = False    # True: the MA term only acts when price is below the MA (like the official reference)
@@ -97,17 +99,26 @@ def construct_features(df: pd.DataFrame, params: Params = DEFAULT) -> pd.DataFra
         out["f_mvrv_z"] = (mv - mu) / sd if params.mvrv_mode == "z" else (mv - params.mvrv0)
     else:
         out["f_mvrv_z"] = np.nan
+    flow_cols = ("FlowInExNtv", "FlowOutExNtv", "SplyCur")
+    if all(c in df.columns for c in flow_cols):
+        net = (df["FlowInExNtv"] - df["FlowOutExNtv"]).shift(1).rolling(30, min_periods=20).sum()
+        share = net / df["SplyCur"].shift(1)
+        mu = share.rolling(365, min_periods=180).mean()
+        sd = share.rolling(365, min_periods=180).std()
+        out["f_netflow_z"] = (share - mu) / sd
+    else:
+        out["f_netflow_z"] = np.nan
     out["f_r7"] = lag / lag.shift(7) - 1.0
     out["f_lag_price"] = lag
     return out
 
 
-FEATURE_COLS = ["f_ma_gap", "f_drawdown", "f_mvrv_z", "f_r7", "f_lag_price"]
+FEATURE_COLS = ["f_ma_gap", "f_drawdown", "f_mvrv_z", "f_netflow_z", "f_r7", "f_lag_price"]
 
 
 # ---------------------------------------------------------------- allocation core
-def allocate(ma_gap: np.ndarray, drawdown: np.ndarray, mvrv_z: np.ndarray, r7: np.ndarray, lag_price: np.ndarray,
-             params: Params, min_weight: float = MIN_WEIGHT) -> np.ndarray:
+def allocate(ma_gap: np.ndarray, drawdown: np.ndarray, mvrv_z: np.ndarray, netflow_z: np.ndarray, r7: np.ndarray,
+             lag_price: np.ndarray, params: Params, min_weight: float = MIN_WEIGHT) -> np.ndarray:
     """Remaining-budget pacing. Pure numpy, sequential by necessity (day t depends on t-1)."""
     n = len(ma_gap)
     w = np.empty(n)
@@ -148,10 +159,12 @@ def allocate(ma_gap: np.ndarray, drawdown: np.ndarray, mvrv_z: np.ndarray, r7: n
         z = min(max(z, -params.clip_mvrv), params.clip_mvrv)
         q = r7[i] if np.isfinite(r7[i]) else 0.0
         q = min(max(q, -params.clip_r7), params.clip_r7)
+        fl = netflow_z[i] if np.isfinite(netflow_z[i]) else 0.0
+        fl = min(max(fl, -params.clip_flow), params.clip_flow)
         b = params.bias
         if params.bias_above is not None and g > 0:
             b = params.bias_above
-        log_m = b - (params.a_ma * (g - params.ma0) + params.a_dd * (d + params.dd0) + params.a_win * r + params.a_mvrv * z + params.a_r7 * q)
+        log_m = b - (params.a_ma * (g - params.ma0) + params.a_dd * (d + params.dd0) + params.a_win * r + params.a_mvrv * z + params.a_r7 * q + params.a_flow * fl)
         m = np.exp(log_m)
         m = min(max(m, params.m_min), params.m_max)
         pace = remaining / days_left
@@ -170,8 +183,8 @@ def compute_weights(df_window: pd.DataFrame, params: Params = DEFAULT) -> pd.Ser
         f = df_window
     else:
         f = construct_features(df_window, params)
-    w = allocate(f["f_ma_gap"].to_numpy(float), f["f_drawdown"].to_numpy(float),
-                 f["f_mvrv_z"].to_numpy(float), f["f_r7"].to_numpy(float), f["f_lag_price"].to_numpy(float), params)
+    w = allocate(f["f_ma_gap"].to_numpy(float), f["f_drawdown"].to_numpy(float), f["f_mvrv_z"].to_numpy(float),
+                 f["f_netflow_z"].to_numpy(float), f["f_r7"].to_numpy(float), f["f_lag_price"].to_numpy(float), params)
     return pd.Series(w, index=df_window.index)
 
 
@@ -202,6 +215,7 @@ def fast_spd_table(features: pd.DataFrame, params: Params, start: str, end: str)
     g = features["f_ma_gap"].to_numpy(float)
     d = features["f_drawdown"].to_numpy(float)
     z = features["f_mvrv_z"].to_numpy(float)
+    fl = features["f_netflow_z"].to_numpy(float)
     q = features["f_r7"].to_numpy(float)
     lp = features["f_lag_price"].to_numpy(float)
     pos = {t: i for i, t in enumerate(idx)}
@@ -211,7 +225,7 @@ def fast_spd_table(features: pd.DataFrame, params: Params, start: str, end: str)
         we = ws + offset
         a = pos[ws]; b = pos[we] + 1  # inclusive slice like df.loc[ws:we]
         pr = price[a:b]
-        w = allocate(g[a:b], d[a:b], z[a:b], q[a:b], lp[a:b], params)
+        w = allocate(g[a:b], d[a:b], z[a:b], fl[a:b], q[a:b], lp[a:b], params)
         inv = 1e8 / pr
         mn, mx = inv.min(), inv.max(); span = mx - mn
         uni = inv.mean(); dyn = (w * inv).sum()

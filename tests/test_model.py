@@ -25,16 +25,17 @@ def _random_inputs(n, seed):
     ma_gap = rng.normal(0, 0.3, n)
     dd = -np.abs(rng.normal(0, 0.3, n))
     mv = rng.normal(0, 1, n)
+    fl = rng.normal(0, 1, n)
     r7 = rng.normal(0, 0.1, n)
-    return ma_gap, dd, mv, r7, price
+    return ma_gap, dd, mv, fl, r7, price
 
 
 @pytest.mark.parametrize("seed", range(20))
 @pytest.mark.parametrize("n", [2, 30, 366, 367])
 def test_allocator_constraints(seed, n):
-    g, d, z, q, lp = _random_inputs(n, seed)
-    for params in [Params(), Params(a_dd=8, m_max=10, bias=1.0), Params(a_dd=0, a_ma=0, bias=-2.0, m_min=0.01)]:
-        w = allocate(g, d, z, q, lp, params)
+    g, d, z, fl, q, lp = _random_inputs(n, seed)
+    for params in [Params(), Params(a_dd=8, m_max=10, bias=1.0, a_flow=0.3), Params(a_dd=0, a_ma=0, bias=-2.0, m_min=0.01)]:
+        w = allocate(g, d, z, fl, q, lp, params)
         assert w.shape == (n,)
         assert np.all(w >= MIN_WEIGHT - 1e-15)
         assert np.isclose(w.sum(), 1.0, rtol=1e-5, atol=1e-8)
@@ -43,12 +44,12 @@ def test_allocator_constraints(seed, n):
 def test_allocator_is_causal():
     """Changing any future input must not change today's weight."""
     n = 366
-    g, d, z, q, lp = _random_inputs(n, 7)
-    base = allocate(g, d, z, q, lp, Params())
+    g, d, z, fl, q, lp = _random_inputs(n, 7)
+    base = allocate(g, d, z, fl, q, lp, Params(a_flow=0.3))
     for t in [0, 10, 100, 200, 364]:
-        g2, d2, z2, q2, lp2 = (x.copy() for x in (g, d, z, q, lp))
-        g2[t + 1:] += 5; d2[t + 1:] -= 0.5; z2[t + 1:] += 3; q2[t + 1:] -= 0.2; lp2[t + 1:] *= 3
-        alt = allocate(g2, d2, z2, q2, lp2, Params())
+        g2, d2, z2, fl2, q2, lp2 = (x.copy() for x in (g, d, z, fl, q, lp))
+        g2[t + 1:] += 5; d2[t + 1:] -= 0.5; z2[t + 1:] += 3; fl2[t + 1:] += 2; q2[t + 1:] -= 0.2; lp2[t + 1:] *= 3
+        alt = allocate(g2, d2, z2, fl2, q2, lp2, Params(a_flow=0.3))
         assert np.allclose(alt[: t + 1], base[: t + 1], rtol=1e-12, atol=1e-15)
 
 
