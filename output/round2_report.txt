@@ -1,0 +1,9 @@
+ROUND 2 GRID COMPLETE: 216 configurations, single pass
+winner: {'a_ma': 0.0, 'a_dd': 0.0, 'a_mvrv': 1.0, 'a_flow': 0.15, 'bias': 0.0, 'm_max': 5.0}
+development: win 77.98  mean pct 44.64  selection 61.31
+candidate v1 on the same metric: 58.45  ->  round 2 BEATS v1
+hold-out (untouched, starts 2024-07-01+): windows 420  win 60.48  RW 48.51  score 54.49  (uniform RW 48.61)
+regime A: windows 2557  win 66.60  RW 39.19  score 52.89
+regime B: windows 2793  win 68.99  RW 48.51  score 58.75
+regime C: windows 3075  win 64.49  RW 39.15  score 51.82
+gates: probe PASS, constraints PASS

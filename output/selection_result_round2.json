@@ -1,0 +1,34 @@
+{
+  "registration": "decision log D14, 2026-08-26",
+  "chosen": {
+    "a_ma": 0.0,
+    "a_dd": 0.0,
+    "a_mvrv": 1.0,
+    "a_flow": 0.15,
+    "bias": 0.0,
+    "m_max": 5.0
+  },
+  "dev_metrics": {
+    "win_rate": 77.97708021923269,
+    "mean_pct": 44.63550698035779,
+    "rw_spd_pct": 50.880823251512076,
+    "selection_metric": 61.30629359979524
+  },
+  "v1_dev_selection_metric": 58.45,
+  "beats_v1_on_selection_metric": true,
+  "data_last_day": "2026-08-24",
+  "holdout": {
+    "windows": 420.0,
+    "win_rate": 60.476190476190474,
+    "rw_spd_pct": 48.51294577176096,
+    "score": 54.49456812397572,
+    "mean_pct": 36.56616569340216,
+    "uniform_rw_spd_pct": 48.610267551450406,
+    "mean_excess": 0.7537821117287413,
+    "min_excess": -2.746586549416655,
+    "regime": "H",
+    "start": "2024-07-01",
+    "end": "2026-08-24"
+  },
+  "gates_passed": true
+}
