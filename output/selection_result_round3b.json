@@ -1,0 +1,69 @@
+{
+  "registration": "decision log D17, 2026-08-26",
+  "chosen": {
+    "a_mvrv": 1.25,
+    "a_flow": 0.3,
+    "mvrv0": 1.6
+  },
+  "dev_metrics": {
+    "win_rate": 80.71748878923766,
+    "mean_pct": 45.45419683113743,
+    "rw_spd_pct": 45.52524390469271,
+    "selection_metric": 63.08584281018754
+  },
+  "beats_v2": true,
+  "data_last_day": "2026-08-24",
+  "holdout": {
+    "windows": 420.0,
+    "win_rate": 62.857142857142854,
+    "rw_spd_pct": 52.30922919223327,
+    "score": 57.58318602468806,
+    "mean_pct": 37.749791964763155,
+    "uniform_rw_spd_pct": 48.610267551450406,
+    "mean_excess": 1.9374083830897417,
+    "min_excess": -7.573692972867423,
+    "regime": "H",
+    "start": "2024-07-01",
+    "end": "2026-08-24"
+  },
+  "regime_A": {
+    "windows": 2557.0,
+    "win_rate": 67.38365271802894,
+    "rw_spd_pct": 40.02583566482582,
+    "score": 53.70474419142738,
+    "mean_pct": 42.608611919081916,
+    "uniform_rw_spd_pct": 38.15444104587961,
+    "mean_excess": 3.9080831997159704,
+    "min_excess": -10.100431599483748,
+    "regime": "A",
+    "start": "2018-01-01",
+    "end": "2025-12-31"
+  },
+  "regime_B": {
+    "windows": 2793.0,
+    "win_rate": 70.13963480128893,
+    "rw_spd_pct": 52.30922919223327,
+    "score": 61.2244319967611,
+    "mean_pct": 42.74482191738954,
+    "uniform_rw_spd_pct": 48.61026755145039,
+    "mean_excess": 4.132854166734337,
+    "min_excess": -10.100431599483748,
+    "regime": "B",
+    "start": "2018-01-01",
+    "end": "2026-08-24"
+  },
+  "regime_C": {
+    "windows": 3075.0,
+    "win_rate": 62.66666666666667,
+    "rw_spd_pct": 34.097750777283515,
+    "score": 48.38220872197509,
+    "mean_pct": 41.780190164357776,
+    "uniform_rw_spd_pct": 41.993673818882655,
+    "mean_excess": 2.438847912291805,
+    "min_excess": -17.14233544444885,
+    "regime": "C",
+    "start": "2016-01-01",
+    "end": "2025-06-01"
+  },
+  "gates_passed": true
+}

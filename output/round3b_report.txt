@@ -1,0 +1,8 @@
+ROUND 3B: refinement grid, 48 configurations
+best: {'a_mvrv': 1.25, 'a_flow': 0.3, 'mvrv0': 1.6} -> dev selection 63.09
+baseline (candidate v2): 61.31 -> BEATS v2
+winner hold-out: win 62.86  RW 52.31  score 57.58
+winner regime A: win 67.38  RW 40.03  score 53.70
+winner regime B: win 70.14  RW 52.31  score 61.22
+winner regime C: win 62.67  RW 34.10  score 48.38
+gates: probe PASS, constraints PASS

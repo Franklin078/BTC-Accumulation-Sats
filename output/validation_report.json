@@ -23,7 +23,7 @@
     "win_mode": "mean",
     "same_day": false
   },
-  "data_last_day": "2026-08-23",
+  "data_last_day": "2026-08-24",
   "probe_A": {
     "probes": 51,
     "failures": [],
@@ -41,7 +41,7 @@
     "passed": true
   },
   "constraints_B": {
-    "windows": 2792,
+    "windows": 2793,
     "passed": true,
     "below_min": 0,
     "sum_not_one": 0

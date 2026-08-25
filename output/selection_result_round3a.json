@@ -1,0 +1,57 @@
+{
+  "registration": "decision log D16, 2026-08-26",
+  "alphas": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "table": [
+    {
+      "windows": 2007,
+      "win_rate": 72.74539113104136,
+      "rw_spd_pct": 52.99057899481164,
+      "score": 62.8679850629265,
+      "mean_pct": 44.691918277937575,
+      "uniform_rw_spd_pct": 44.1534515035299,
+      "mean_excess": 5.5508565549817295,
+      "min_excess": -12.987867727784408,
+      "regime": "D",
+      "start": "2018-01-01",
+      "end": "2024-06-30",
+      "alpha_v1": 0.25,
+      "selection_metric": 58.71865470448947
+    },
+    {
+      "windows": 2007,
+      "win_rate": 71.79870453413054,
+      "rw_spd_pct": 57.21009048141079,
+      "score": 64.50439750777066,
+      "mean_pct": 44.804740873097145,
+      "uniform_rw_spd_pct": 44.1534515035299,
+      "mean_excess": 5.663679150141302,
+      "min_excess": -17.780626801542144,
+      "regime": "D",
+      "start": "2018-01-01",
+      "end": "2024-06-30",
+      "alpha_v1": 0.75,
+      "selection_metric": 58.30172270361384
+    },
+    {
+      "windows": 2007,
+      "win_rate": 71.6990533134031,
+      "rw_spd_pct": 55.100334738111194,
+      "score": 63.39969402575714,
+      "mean_pct": 44.74832957551737,
+      "uniform_rw_spd_pct": 44.1534515035299,
+      "mean_excess": 5.607267852561516,
+      "min_excess": -15.379520837302305,
+      "regime": "D",
+      "start": "2018-01-01",
+      "end": "2024-06-30",
+      "alpha_v1": 0.5,
+      "selection_metric": 58.22369144446023
+    }
+  ],
+  "beats_v2": false,
+  "data_last_day": "2026-08-24"
+}

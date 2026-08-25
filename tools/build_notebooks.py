@@ -200,19 +200,33 @@ for c in ["f_ma_gap", "f_drawdown", "f_mvrv_z"]:
 
 # ------------------------------------------------------------------ 04 selection
 write(nb([
-    ("md", "## What this notebook does\nIt presents the pre-registered model selection. The grid, the development and hold-out split, and the selection metric were fixed in `model/select.py` before the grid was run; the notebook reads the saved grid and does not tune anything."),
+    ("md", "## What this notebook does\nIt presents every registered model-selection round: the registration text (fixed before each run), the saved grid, and the outcome. Nothing here tunes anything; it reads the committed round outputs so the record and the presentation cannot drift apart."),
     ("code", PATHFIX), ("code", VERSIONS),
+    ("md", "### The protocol, common to every round\nDevelopment windows start 2018-01-01 to 2023-06-30; a 12-month embargo separates them from the hold-out (window starts from 2024-07-01), because consecutive windows share up to 364 days. The selection metric is 0.5 x win rate + 0.5 x unweighted mean SPD percentile on development windows; the recency-weighted term is excluded from selection because it rewards whichever market phase ends the development period. Each round's grid is written down and registered before it runs, runs once, and is saved in full."),
+    ("md", "### Round 1: price-structure features"),
     ("code", '''import json, pandas as pd
 print(open("model/select.py").read().split('"""')[1])
-grid = pd.read_csv("output/selection_grid.csv"); res = json.load(open("output/selection_result.json"))
-print("configurations evaluated:", len(grid)); print("chosen:", res["chosen"]); grid.head(10)'''),
-    ("md", "### Hold-out\nThe chosen configuration, and only that one, is scored on windows that start after the embargo. These numbers come from the unmodified Trilemma engine."),
-    ("code", '''from model.regimes import load_btc, evaluate, Regime
-from model.strategy import construct_features, Params, make_strategy
-df = load_btc(); P = json.load(open("model/final_params.json")); p = Params(**P); feats = construct_features(df, p)
-hold = Regime("H", "hold-out", "2024-07-01", None)
-spd, s = evaluate(df, make_strategy(p), feats, hold); print({k: (round(v, 2) if isinstance(v, float) else v) for k, v in s.items()})'''),
-], "04 Pre-registered model selection"), "notebooks/04_model_selection.ipynb")
+g1 = pd.read_csv("output/selection_grid.csv"); r1 = json.load(open("output/selection_result.json"))
+print("configurations:", len(g1), "| chosen:", r1["chosen"]); g1.head(5)'''),
+    ("md", "### Round 2: on-chain features join the menu"),
+    ("code", '''print(open("model/select_round2.py").read().split('"""')[1])
+g2 = pd.read_csv("output/selection_grid_round2.csv"); r2 = json.load(open("output/selection_result_round2.json"))
+print("configurations:", len(g2), "| chosen:", r2["chosen"], "| beats v1:", r2["beats_v1_on_selection_metric"])
+print("best cell without the netflow term:", round(g2[g2.a_flow==0].selection_metric.max(), 2),
+      "| with it:", round(g2[g2.a_flow>0].selection_metric.max(), 2))
+g2.head(5)'''),
+    ("md", "### Round 3a: convex blends of the two candidates"),
+    ("code", '''print(open("model/select_round3a.py").read().split('"""')[1])
+print(open("output/round3a_report.txt").read())'''),
+    ("md", "### Round 3b: refinement of the round 2 winner's neighbourhood"),
+    ("code", '''print(open("model/select_round3b.py").read().split('"""')[1])
+print(open("output/round3b_report.txt").read())'''),
+    ("md", "### Candidate registry\nThe registry is assembled from the committed round outputs; each entry is a named, fully specified model."),
+    ("code", '''from model.candidates import build_registry
+reg = build_registry()
+for name, spec in reg.items():
+    print(name, "->", spec["type"])'''),
+], "04 Registered model-selection rounds"), "notebooks/04_model_selection.ipynb")
 
 # ------------------------------------------------------------------ 05 validation
 write(nb([
@@ -248,14 +262,17 @@ write(nb([
 from model.regimes import load_btc, REGIMES, evaluate, Regime
 from model.strategy import construct_features, Params, make_strategy
 from model import reference_2025
+from model.candidates import build_registry, load_candidates
 from template.model_development_template import precompute_features, compute_window_weights
 df = load_btc(); P = json.load(open("model/final_params.json")); p = Params(**P); feats = construct_features(df, p)
 upfeats = precompute_features(df)
 def upstream_fn(w):
     if w.empty: return pd.Series(dtype=float)
     return compute_window_weights(upfeats, w.index.min(), w.index.max(), w.index.max())
-models = {"Final model": make_strategy(p), "Uniform DCA": lambda w: pd.Series(1.0/len(w), index=w.index),
-          "Upstream 2026 baseline (200-MA)": upstream_fn, "Tournament 2025 reference": reference_2025.compute_weights}'''),
+build_registry()
+models = dict(load_candidates())
+models.update({"Uniform DCA": lambda w: pd.Series(1.0/len(w), index=w.index),
+               "Upstream 2026 baseline (200-MA)": upstream_fn, "Tournament 2025 reference": reference_2025.compute_weights})'''),
     ("md", "### The triples for every regime. Uniform DCA against itself ties every window, so its win rate is set to zero rather than left to floating-point noise."),
     ("code", '''rows = []; tables = {}
 for name, fn in models.items():
@@ -267,7 +284,8 @@ for name, fn in models.items():
 res = pd.DataFrame(rows)[["model", "regime", "start", "end", "windows", "win_rate", "rw_spd_pct", "score", "uniform_rw_spd_pct", "mean_pct", "mean_excess"]]
 res.to_csv("output/results_regimes.csv", index=False); res.round(2)'''),
     ("md", "### Robustness: leave one year of window starts out, and one-at-a-time parameter sensitivity (regime A)"),
-    ("code", '''spdA = tables[("Final model", "A")]; starts = pd.to_datetime([s.split(" → ")[0] for s in spdA.index])
+    ("code", '''cand_names = [m for m in models if m.startswith(("Candidate", "Round"))]
+spdA = tables[(cand_names[0], "A")]; starts = pd.to_datetime([s.split(" → ")[0] for s in spdA.index])
 win = (spdA.dynamic_percentile > spdA.uniform_percentile)
 print("win rate by year of window start:"); print(win.groupby(starts.year).mean().mul(100).round(1).to_string())
 sens = []
@@ -277,7 +295,7 @@ for key, vals in {"a_dd": [P["a_dd"]*0.5, P["a_dd"]*1.5], "a_mvrv": [0.0, P["a_m
 pd.DataFrame(sens)'''),
     ("md", "### Charts"),
     ("code", '''fig, ax = plt.subplots(figsize=(13, 4.5))
-for (name, k), col in zip([("Final model", "B"), ("Uniform DCA", "B"), ("Upstream 2026 baseline (200-MA)", "B"), ("Tournament 2025 reference", "B")], PALETTE):
+for (name, k), col in zip([(m, "B") for m in cand_names] + [("Uniform DCA", "B"), ("Tournament 2025 reference", "B")], PALETTE):
     t = tables[(name, k)]; st = pd.to_datetime([s.split(" → ")[0] for s in t.index]); ax.plot(st, t.dynamic_percentile.rolling(7).mean(), lw=1.2, label=name, color=col)
 ax.set_title("SPD percentile by window start, regime B (7-day smoothed)"); ax.set_xlabel("Window start"); ax.set_ylabel("percentile (%)"); ax.legend(); annotate_halvings(ax)
 plt.tight_layout(); plt.savefig("output/07_percentile_by_window_B.png", dpi=200); plt.show()

@@ -1,0 +1,63 @@
+{
+  "Candidate v1 (drawdown-led, round 1)": {
+    "type": "params",
+    "params": {
+      "ma_len": 200,
+      "a_ma": 1.0,
+      "a_dd": 0.5,
+      "a_win": 0.0,
+      "a_mvrv": 1.0,
+      "dd0": 0.0,
+      "ma0": 0.0,
+      "m_min": 0.25,
+      "m_max": 5.0,
+      "clip_ma": 0.6,
+      "clip_dd": 0.8,
+      "clip_win": 0.5,
+      "clip_mvrv": 3.0,
+      "mvrv_mode": "level",
+      "mvrv0": 1.8,
+      "a_r7": 0.0,
+      "clip_r7": 0.3,
+      "ma_asym": true,
+      "bias": 0.2,
+      "bias_above": null,
+      "win_mode": "mean",
+      "same_day": false
+    }
+  },
+  "Candidate v2 (MVRV + netflow, round 2)": {
+    "type": "params",
+    "params": {
+      "ma_len": 200,
+      "ma_asym": true,
+      "a_win": 0.0,
+      "m_min": 0.25,
+      "mvrv_mode": "level",
+      "mvrv0": 1.8,
+      "a_ma": 0.0,
+      "a_dd": 0.0,
+      "a_mvrv": 1.0,
+      "a_flow": 0.15,
+      "bias": 0.0,
+      "m_max": 5.0
+    }
+  },
+  "Candidate v3 (refined MVRV + netflow, round 3b)": {
+    "type": "params",
+    "params": {
+      "ma_len": 200,
+      "ma_asym": true,
+      "a_win": 0.0,
+      "m_min": 0.25,
+      "mvrv_mode": "level",
+      "mvrv0": 1.6,
+      "a_ma": 0.0,
+      "a_dd": 0.0,
+      "bias": 0.0,
+      "m_max": 5.0,
+      "a_mvrv": 1.25,
+      "a_flow": 0.3
+    }
+  }
+}
