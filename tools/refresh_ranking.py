@@ -23,7 +23,8 @@ for m in reg.model.unique():
 extras = [("Round 4 best (all-feature ridge, not a candidate)", "output/selection_result_round4.json"),
           ("Round 7 best (v4/v3 blend 0.75, negative round)", "output/round7_result.json"),
           ("Round 8 best (hgbr depth 2, negative round)", "output/round8_result.json"),
-          ("Round 9 best (expanded features, negative round)", "output/round9_result.json")]
+          ("Round 9 best (expanded features, negative round)", "output/round9_result.json"),
+          ("Round 10 best (synthesis committee, negative round)", "output/round10_result.json")]
 for label, path in extras:
     if os.path.exists(path):
         r = json.load(open(path))

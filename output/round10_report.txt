@@ -1,0 +1,8 @@
+ROUND 10 (synthesis committee): 18 configurations, single pass
+best: top4 hl=none a+=3.0 a-=1.0 -> dev selection 53.46
+baseline (candidate v5): 73.12 -> DOES NOT BEAT the baseline (negative result)
+best config hold-out: win 65.00  RW 61.14  score 63.07
+best config regime A: win 56.79  RW 39.49  score 48.14
+best config regime B: win 60.11  RW 61.14  score 60.62
+best config regime C: win 67.71  RW 39.67  score 53.69
+gates: probe PASS (0/51), constraints PASS
