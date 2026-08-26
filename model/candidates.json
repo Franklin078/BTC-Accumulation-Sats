@@ -84,5 +84,21 @@
     "shape": "pace",
     "m_max": 12.0,
     "b_quad": 0.0
+  },
+  "Candidate v6 (v5 with asymmetric response, round 11)": {
+    "type": "ml",
+    "model": "hgbr",
+    "horizon": 90,
+    "a_ml": 2.0,
+    "features": [
+      "hash_mom",
+      "fee_mom",
+      "cycle_pos"
+    ],
+    "shape": "pace",
+    "m_max": 12.0,
+    "b_quad": 0.0,
+    "a_pos": 3.0,
+    "a_neg": 1.0
   }
 }

@@ -57,6 +57,21 @@ def build_registry() -> dict:
                 "type": "ml", "model": v4spec["model"], "horizon": v4spec["horizon"],
                 "a_ml": v4spec["a_ml"], "features": v4spec["features"],
                 "shape": m.group(1), "m_max": float(m.group(2)), "b_quad": float(m.group(3))}
+    if os.path.exists("output/round11_result.json"):
+        r11 = json.load(open("output/round11_result.json"))
+        if r11.get("beats_baseline"):
+            import re as _re
+            m = _re.fullmatch(r"C: cond g=([\d.]+) a\+=([\d.]+) a-=([\d.]+)", str(r11["best_label"]))
+            if m is None:
+                raise ValueError(f"unrecognised round-11 winner label: {r11['best_label']!r}")
+            if float(m.group(1)) != 0.0:
+                raise ValueError("round-11 winner carries an active conditioner; the registry "
+                                 "schema needs conditioner fields before it can hold this model")
+            v5spec = reg["Candidate v5 (v4 signal, ceiling 12, round 6)"]
+            # at gain 0 the conditioner is weight-inert by construction, so this winner's
+            # weight function is exactly candidate v5's with the asymmetric response
+            reg["Candidate v6 (v5 with asymmetric response, round 11)"] = {
+                **v5spec, "a_pos": float(m.group(2)), "a_neg": float(m.group(3))}
     json.dump(reg, open(REG_PATH, "w"), indent=2)
     return reg
 
@@ -75,7 +90,8 @@ def load_candidates_with_feats(df) -> dict:
         if spec["type"] == "ml":
             cfg = MLConfig(model=spec["model"], horizon=int(spec["horizon"]), a_ml=float(spec["a_ml"]),
                            features=tuple(spec["features"]), m_max=float(spec.get("m_max", 5.0)),
-                           shape=str(spec.get("shape", "pace")), b_quad=float(spec.get("b_quad", 0.0)))
+                           shape=str(spec.get("shape", "pace")), b_quad=float(spec.get("b_quad", 0.0)),
+                           a_pos=float(spec.get("a_pos", 0.0)), a_neg=float(spec.get("a_neg", 0.0)))
             out[name] = (fns[name], build_ml_features(df, cfg))
         elif spec["type"] == "blend":
             out[name] = (fns[name], construct_features(df, Params(**spec["v1_params"])))
@@ -95,7 +111,8 @@ def load_candidates() -> dict:
             from model.ml import MLConfig, make_ml_strategy
             cfg = MLConfig(model=spec["model"], horizon=int(spec["horizon"]), a_ml=float(spec["a_ml"]),
                            features=tuple(spec["features"]), m_max=float(spec.get("m_max", 5.0)),
-                           shape=str(spec.get("shape", "pace")), b_quad=float(spec.get("b_quad", 0.0)))
+                           shape=str(spec.get("shape", "pace")), b_quad=float(spec.get("b_quad", 0.0)),
+                           a_pos=float(spec.get("a_pos", 0.0)), a_neg=float(spec.get("a_neg", 0.0)))
             out[name] = make_ml_strategy(cfg)
         elif spec["type"] == "blend":
             f1 = make_strategy(Params(**spec["v1_params"]))

@@ -50,8 +50,22 @@ def test_adjudication_is_the_running_max():
         assert r["dev_metrics"]["selection_metric"] <= adj["standing_value"] + 1e-9, name
 
 
+def test_registry_v6_matches_round11_label():
+    reg = json.load(open("model/candidates.json"))
+    r11 = _load("output/round11_result.json")
+    v6 = reg["Candidate v6 (v5 with asymmetric response, round 11)"]
+    m = re.fullmatch(r"C: cond g=([\d.]+) a\+=([\d.]+) a-=([\d.]+)", str(r11["best_label"]))
+    assert m, r11["best_label"]
+    assert float(m.group(1)) == 0.0, "an active conditioner cannot be held by this registry entry"
+    assert float(v6["a_pos"]) == float(m.group(2))
+    assert float(v6["a_neg"]) == float(m.group(3))
+    v5 = reg["Candidate v5 (v4 signal, ceiling 12, round 6)"]
+    for k in ("model", "horizon", "a_ml", "features", "shape", "m_max", "b_quad"):
+        assert v6[k] == v5[k], k
+
+
 def test_round_results_carry_fingerprints():
-    for n in (6, 7, 8, 9):
+    for n in (6, 7, 8, 9, 10, 11):
         r = _load(f"output/round{n}_result.json")
         assert r.get("fingerprint"), f"round {n} result has no fingerprint"
 
@@ -69,7 +83,7 @@ def test_ranking_rows_match_their_sources():
 
 
 def test_gates_passed_for_every_round_winner():
-    for n in (6, 7, 8, 9):
+    for n in (6, 7, 8, 9, 10, 11):
         r = _load(f"output/round{n}_result.json")
         assert r.get("probe_passed") is True, f"round {n} winner failed or skipped the probe"
         assert r.get("constraints_passed") is True, f"round {n} winner failed constraints"

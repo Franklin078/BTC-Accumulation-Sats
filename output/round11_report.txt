@@ -1,0 +1,8 @@
+ROUND 11 (three arms): 27 configurations, single pass
+best: C: cond g=0.0 a+=3.0 a-=1.0 -> dev selection 73.41
+baseline (candidate v5): 73.12 -> BEATS the baseline
+best config hold-out: win 45.48  RW 58.76  score 52.12
+best config regime A: win 85.45  RW 31.87  score 58.66
+best config regime B: win 85.07  RW 58.76  score 71.91
+best config regime C: win 87.25  RW 38.82  score 63.04
+gates: probe PASS (0/51), constraints PASS
