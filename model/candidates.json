@@ -59,5 +59,16 @@
       "a_mvrv": 1.25,
       "a_flow": 0.3
     }
+  },
+  "Candidate v4 (feature-prioritised ML, round 5)": {
+    "type": "ml",
+    "model": "hgbr",
+    "horizon": 90,
+    "a_ml": 2.0,
+    "features": [
+      "hash_mom",
+      "fee_mom",
+      "cycle_pos"
+    ]
   }
 }

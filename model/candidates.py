@@ -38,6 +38,13 @@ def build_registry() -> dict:
             p = {**FIXED_V2, "a_ma": 0.0, "a_dd": 0.0, "bias": 0.0, "m_max": 5.0,
                  **{k: float(v) for k, v in r3b["chosen"].items()}}
             reg["Candidate v3 (refined MVRV + netflow, round 3b)"] = {"type": "params", "params": p}
+    if os.path.exists("output/selection_result_round5.json"):
+        r5 = json.load(open("output/selection_result_round5.json"))
+        if r5.get("beats_v3"):
+            ch = r5["chosen"]
+            reg["Candidate v4 (feature-prioritised ML, round 5)"] = {
+                "type": "ml", "model": str(ch["model"]), "horizon": 90,
+                "a_ml": float(ch["a_ml"]), "features": str(ch["features"]).split(";")}
     json.dump(reg, open(REG_PATH, "w"), indent=2)
     return reg
 
@@ -49,6 +56,11 @@ def load_candidates() -> dict:
     for name, spec in reg.items():
         if spec["type"] == "params":
             out[name] = make_strategy(Params(**spec["params"]))
+        elif spec["type"] == "ml":
+            from model.ml import MLConfig, make_ml_strategy
+            cfg = MLConfig(model=spec["model"], horizon=int(spec["horizon"]), a_ml=float(spec["a_ml"]),
+                           features=tuple(spec["features"]))
+            out[name] = make_ml_strategy(cfg)
         elif spec["type"] == "blend":
             f1 = make_strategy(Params(**spec["v1_params"]))
             f2 = make_strategy(Params(**spec["v2_params"]))

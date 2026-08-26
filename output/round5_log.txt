@@ -1,0 +1,62 @@
+ROUND 5 STEP 1: feature importance on the development period
+           abs_spearman_ic  permutation_importance  rank_ic  rank_perm  avg_rank
+hash_mom            0.4896                  0.0305      1.0        3.0       2.0
+fee_mom             0.3978                  0.1407      3.0        1.0       2.0
+cycle_pos           0.4775                  0.0180      2.0        4.0       3.0
+adr_mom             0.2825                  0.0327      4.0        2.0       3.0
+roi_1yr             0.2516                 -0.0246      5.0        9.0       7.0
+netflow_z           0.1598                 -0.0241      7.0        8.0       7.5
+ret_30              0.1486                 -0.0137      8.0        7.0       7.5
+ret_7               0.0834                 -0.0033     10.0        6.0       8.0
+ret_90              0.0161                 -0.0011     12.0        5.0       8.5
+mvrv                0.1726                 -0.0800      6.0       13.0       9.5
+vol_30              0.0903                 -0.0689      9.0       11.0      10.0
+ma_gap              0.0005                 -0.0308     13.0       10.0      11.5
+drawdown            0.0531                 -0.0796     11.0       12.0      11.5
+priority order: ['hash_mom', 'fee_mom', 'cycle_pos', 'adr_mom', 'roi_1yr', 'netflow_z', 'ret_30', 'ret_7', 'ret_90', 'mvrv', 'vol_30', 'ma_gap', 'drawdown']
+[1/8] ridge top3 a=1.0 -> sel 55.75 (4s)
+[2/8] ridge top3 a=2.0 -> sel 55.30 (7s)
+[3/8] ridge top5 a=1.0 -> sel 56.31 (11s)
+[4/8] ridge top5 a=2.0 -> sel 56.96 (15s)
+[5/8] hgbr top3 a=1.0 -> sel 69.51 (23s)
+[6/8] hgbr top3 a=2.0 -> sel 71.14 (26s)
+[7/8] hgbr top5 a=1.0 -> sel 48.67 (34s)
+[8/8] hgbr top5 a=2.0 -> sel 52.75 (37s)
+running the tournament forward-leakage probe (retrains under masking; slow)...
+
+ROUND 5 STEP 1: feature importance on the development period
+           abs_spearman_ic  permutation_importance  rank_ic  rank_perm  avg_rank
+hash_mom            0.4896                  0.0305      1.0        3.0       2.0
+fee_mom             0.3978                  0.1407      3.0        1.0       2.0
+cycle_pos           0.4775                  0.0180      2.0        4.0       3.0
+adr_mom             0.2825                  0.0327      4.0        2.0       3.0
+roi_1yr             0.2516                 -0.0246      5.0        9.0       7.0
+netflow_z           0.1598                 -0.0241      7.0        8.0       7.5
+ret_30              0.1486                 -0.0137      8.0        7.0       7.5
+ret_7               0.0834                 -0.0033     10.0        6.0       8.0
+ret_90              0.0161                 -0.0011     12.0        5.0       8.5
+mvrv                0.1726                 -0.0800      6.0       13.0       9.5
+vol_30              0.0903                 -0.0689      9.0       11.0      10.0
+ma_gap              0.0005                 -0.0308     13.0       10.0      11.5
+drawdown            0.0531                 -0.0796     11.0       12.0      11.5
+priority order: ['hash_mom', 'fee_mom', 'cycle_pos', 'adr_mom', 'roi_1yr', 'netflow_z', 'ret_30', 'ret_7', 'ret_90', 'mvrv', 'vol_30', 'ma_gap', 'drawdown']
+
+ROUND 5 GRID: 8 configurations
+best: {'model': 'hgbr', 'top_k': 3, 'a_ml': 2.0, 'features': 'hash_mom;fee_mom;cycle_pos'} -> dev selection 71.14
+baseline (candidate v3): 63.09 -> BEATS v3
+best config hold-out: win 49.29  RW 65.47  score 57.38
+best config regime A: win 84.32  RW 35.75  score 60.03
+best config regime B: win 84.60  RW 65.47  score 75.04
+best config regime C: win 84.46  RW 34.81  score 59.63
+gates: probe PASS (0/51), constraints PASS
+
+STEP 5: descriptive ranking of all models (mean score across regimes A, B, C)
+                                             model  score_A  score_B  score_C  mean_ABC
+1                    Round 5 ML best (hgbr, top 3)    60.03    75.04    59.63     64.90
+2                        Tournament 2025 reference    67.02    49.18    72.55     62.91
+3                     Round 4 ML best (ridge, H90)    59.05    69.52    60.06     62.88
+4             Candidate v1 (drawdown-led, round 1)    59.05    57.68    56.55     57.76
+5           Candidate v2 (MVRV + netflow, round 2)    52.89    58.75    51.82     54.49
+6  Candidate v3 (refined MVRV + netflow, round 3b)    51.79    57.43    50.94     53.39
+7                  Upstream 2026 baseline (200-MA)    51.74    56.66    51.26     53.22
+8                                      Uniform DCA    19.08    24.31    21.00     21.46

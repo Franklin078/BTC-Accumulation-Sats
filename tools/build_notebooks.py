@@ -345,7 +345,31 @@ print(ic.round(3).to_string())
 print("overall:", round(both["ml_pred"].corr(both["fwd"], method="spearman"), 4))'''),
 ], "07 Round 4: a causal machine-learning candidate"), "notebooks/07_ml.ipynb")
 
-print("notebooks 01 to 07 written")
+# ------------------------------------------------------------------ 08 feature-prioritised ML and ranking
+write(nb([
+    ("md", "## What this notebook does\nRound 5 asks a sharper version of round 4's question: if the learner is restricted to the most important features, measured under registered rules, does it close the gap to the rule-based candidates? The notebook presents the importance ranking, the priority sets, the grid, the outcome, and closes with a descriptive ranking of every model this project has produced."),
+    ("code", PATHFIX), ("code", VERSIONS),
+    ("md", "### Why prioritise features at all\nRound 4 handed the learners all thirteen features at once. With noisy targets, every marginal feature is another dimension in which the model can fit chance, so the standard remedy is to rank features on development data and keep only the top of the list. The ranking uses two measures that fail differently: a rank correlation with the 90-day forward return (linear-free, per-feature) and permutation importance from a boosted model on a purged development split (captures interactions). Features are ordered by their average rank across the two, and the whole table is published rather than just the survivors."),
+    ("md", "### Registration"),
+    ("code", '''print(open("model/select_round5.py").read().split(chr(34)*3)[1])'''),
+    ("md", "### Step 1 and 2: the importance table and the priority order"),
+    ("code", '''import json, pandas as pd
+imp = pd.read_csv("output/feature_importance_round5.csv", index_col=0)
+print(imp.round(4).to_string())
+r5 = json.load(open("output/selection_result_round5.json"))
+print()
+print("priority order:", r5["priority_order"])'''),
+    ("md", "### Step 3 and 4: the grid, the outcome, and the gates"),
+    ("code", '''g = pd.read_csv("output/selection_grid_round5.csv")
+print(g[[c for c in ["model","top_k","a_ml","features","win_rate","mean_pct","selection_metric","rw_spd_pct"] if c in g.columns]].round(2).to_string())
+print()
+print(open("output/round5_report.txt").read().split("STEP 5")[0])'''),
+    ("md", "### Step 5: ranking every model\nThe ranking below is descriptive reporting across the three regimes, not a selection device: the final model choice follows the registered protocol (development metric, then the untouched hold-out), and choosing a model from this table would amount to selecting on the test sets. The table exists so that every model built in this project can be seen in one place, including the ones the protocol rejected."),
+    ("code", '''rank = pd.read_csv("output/model_ranking.csv", index_col=0)
+print(rank.round(2).to_string())'''),
+], "08 Round 5: feature-prioritised machine learning, and the full ranking"), "notebooks/08_feature_ml_ranking.ipynb")
+
+print("notebooks 01 to 08 written")
 
 # ------------------------------------------------------------------ part 2: tournament submission and educational notebook
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
