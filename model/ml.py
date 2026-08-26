@@ -56,6 +56,16 @@ class MLConfig:
     sample_halflife: float = 0.0  # >0: training samples decay with age, half-life in days
     a_pos: float = 0.0        # asymmetric multiplier: response to positive signals
     a_neg: float = 0.0        # response to negative signals (both fall back to a_ml when 0)
+    blocks: tuple = ()        # non-empty: a block committee ((family, (feature, ...)), ...);
+                              # one model per family, z-scores combined with no fitted weights
+    combine: str = "avg"      # block combination: "avg" (equal-weight mean of finite family
+                              # z-scores) or "gate" (the mean passes through only on days when
+                              # at least three families have finite signals sharing its sign)
+    cond_features: tuple = () # non-empty: a conditioner model on these features adds f_cond_z
+                              # to the frame; it scales how hard the engine tilts, never which way
+    cond_gain: float = 0.0    # g in a_eff = a x (1 + g tanh(z_cond)); 0 disables conditioning
+    cond_depth: int = 2       # tree depth of the conditioner model only; separate from
+                              # hgbr_depth so conditioning an engine never alters the engine
 
 
 def fetch_fear_greed(path: str = "data/fear_greed.csv") -> pd.Series:
@@ -238,33 +248,69 @@ def causal_standardise(pred: pd.Series, clip: float) -> pd.Series:
     return ((pred - mu) / sd).clip(-clip, clip)
 
 
-def build_ml_features(df: pd.DataFrame, cfg: MLConfig) -> pd.DataFrame:
-    """Feature frame for the allocator: base columns plus the causal ML signal f_ml_z.
+def _committee_signal(df: pd.DataFrame, cfg: MLConfig) -> pd.Series:
+    """The causal ML signal under any of the three signal structures.
 
-    With cfg.horizons set, the signal is a committee: each horizon's walk-forward forecast is
-    causally standardised on its own history, and the z-scores are averaged with fixed equal
-    weights. No weights are fitted, so the combination introduces no additional selection."""
+    Plain: one walk-forward forecast, causally standardised. Horizons committee: each horizon's
+    forecast standardised on its own history, then averaged with fixed equal weights. Block
+    committee: one model per feature family, each family's forecast standardised on its own
+    history, combined by the equal-weight mean of the finite family z-scores, optionally gated
+    to zero on days when fewer than three families share the mean's sign. No combination weight
+    is ever fitted, so none of these structures adds selection on top of the registered grid."""
     from dataclasses import replace
-    feats = construct_features(df, Params())
+    if cfg.blocks:
+        zs = [causal_standardise(
+                  walk_forward_predictions(df, replace(cfg, features=tuple(f), blocks=(), horizons=())),
+                  cfg.clip_ml).rename(name)
+              for name, f in cfg.blocks]
+        Z = pd.concat(zs, axis=1)
+        avg = Z.mean(axis=1)  # pandas mean skips NaN: the mean of the finite family signals
+        if cfg.combine == "gate":
+            pos = (Z > 0).sum(axis=1)
+            neg = (Z < 0).sum(axis=1)
+            agree = ((avg > 0) & (pos >= 3)) | ((avg < 0) & (neg >= 3))
+            avg = avg.where(agree, 0.0)
+        elif cfg.combine != "avg":
+            raise ValueError(f"unknown block combination {cfg.combine!r}")
+        return avg.clip(-cfg.clip_ml, cfg.clip_ml)
     if cfg.horizons:
         zs = [causal_standardise(walk_forward_predictions(df, replace(cfg, horizon=h, horizons=())), cfg.clip_ml)
               for h in cfg.horizons]
-        feats["f_ml_z"] = (sum(zs) / len(zs)).clip(-cfg.clip_ml, cfg.clip_ml)
-    else:
-        feats["f_ml_z"] = causal_standardise(walk_forward_predictions(df, cfg), cfg.clip_ml)
+        return (sum(zs) / len(zs)).clip(-cfg.clip_ml, cfg.clip_ml)
+    return causal_standardise(walk_forward_predictions(df, cfg), cfg.clip_ml)
+
+
+def build_ml_features(df: pd.DataFrame, cfg: MLConfig) -> pd.DataFrame:
+    """Feature frame for the allocator: base columns plus the causal ML signal f_ml_z, and,
+    for a conditioned configuration, the conditioner signal f_cond_z built the same causal way
+    from its own feature set."""
+    from dataclasses import replace
+    feats = construct_features(df, Params())
+    feats["f_ml_z"] = _committee_signal(df, cfg)
+    if cfg.cond_features:
+        # the conditioner takes its own depth (cond_depth), never the engine's hgbr_depth:
+        # the two are registered separately and conditioning must leave the engine untouched
+        cond_cfg = replace(cfg, features=tuple(cfg.cond_features), cond_features=(),
+                           blocks=(), horizons=(), hgbr_depth=cfg.cond_depth)
+        feats["f_cond_z"] = causal_standardise(walk_forward_predictions(df, cond_cfg), cfg.clip_ml)
     return feats
 
 
-def _multiplier(z: float, cfg: MLConfig) -> float:
+def _multiplier(z: float, cfg: MLConfig, zc: float = 0.0) -> float:
     if cfg.a_pos > 0 or cfg.a_neg > 0:
         a = (cfg.a_pos if z >= 0 else cfg.a_neg) or cfg.a_ml
     else:
         a = cfg.a_ml
+    if cfg.cond_gain > 0:
+        # the conditioner scales the strength of the tilt, bounded by tanh, and never its
+        # direction; with the gain at most 0.5 the effective strength stays within half to
+        # one-and-a-half times the base, and the ceiling and floor still apply after it
+        a = a * (1.0 + cfg.cond_gain * float(np.tanh(zc)))
     log_m = a * z + cfg.b_quad * z * abs(z)
     return min(max(float(np.exp(log_m)), cfg.m_min), cfg.m_max)
 
 
-def _allocate_pace(z: np.ndarray, cfg: MLConfig) -> np.ndarray:
+def _allocate_pace(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None) -> np.ndarray:
     """Remaining-budget pacing: each day spends the even pace of what is left, scaled by m."""
     n = len(z)
     w = np.empty(n)
@@ -275,7 +321,8 @@ def _allocate_pace(z: np.ndarray, cfg: MLConfig) -> np.ndarray:
         if days_left == 1:
             w[i] = remaining
             break
-        m = _multiplier(z[i] if np.isfinite(z[i]) else 0.0, cfg)
+        zci = zc[i] if zc is not None and np.isfinite(zc[i]) else 0.0
+        m = _multiplier(z[i] if np.isfinite(z[i]) else 0.0, cfg, zci)
         pace = remaining / days_left
         cap = remaining - (days_left - 1) * floor
         wi = min(max(pace * m, floor), cap)
@@ -284,7 +331,7 @@ def _allocate_pace(z: np.ndarray, cfg: MLConfig) -> np.ndarray:
     return w
 
 
-def _allocate_tailpay(z: np.ndarray, cfg: MLConfig) -> np.ndarray:
+def _allocate_tailpay(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None) -> np.ndarray:
     """Reference-style shape: start uniform; a boosted day is paid for by equally reducing the
     days in the window's second half that have not yet been reached. Only future days are ever
     reduced, so the shape is causal; if the tail cannot fund a boost, the boost is skipped."""
@@ -294,7 +341,8 @@ def _allocate_tailpay(z: np.ndarray, cfg: MLConfig) -> np.ndarray:
     floor = MIN_WEIGHT * 1.01
     tail_start = n // 2
     for i in range(n):
-        m = _multiplier(z[i] if np.isfinite(z[i]) else 0.0, cfg)
+        zci = zc[i] if zc is not None and np.isfinite(zc[i]) else 0.0
+        m = _multiplier(z[i] if np.isfinite(z[i]) else 0.0, cfg, zci)
         if m <= 1.0:
             continue
         desired = w[i] * m
@@ -321,7 +369,16 @@ def make_ml_strategy(cfg: MLConfig):
             return pd.Series(dtype=float)
         f = df_window if "f_ml_z" in df_window.columns else build_ml_features(df_window, cfg)
         z = f["f_ml_z"].to_numpy(float)
-        w = _allocate_pace(z, cfg) if cfg.shape == "pace" else _allocate_tailpay(z, cfg)
+        zc = None
+        if cfg.cond_features:
+            if "f_cond_z" not in f.columns:
+                # a conditioned strategy scored against a frame without its conditioner column
+                # would silently fall back to plain v5; refuse, the same way the harness refuses
+                # frames that lack f_ml_z (decision log D35)
+                raise ValueError("conditioned strategy given a frame without f_cond_z; build "
+                                 "the frame with build_ml_features under this configuration")
+            zc = f["f_cond_z"].to_numpy(float)
+        w = _allocate_pace(z, cfg, zc) if cfg.shape == "pace" else _allocate_tailpay(z, cfg, zc)
         return pd.Series(w, index=df_window.index)
     fn.cfg = cfg
     return fn
