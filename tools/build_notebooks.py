@@ -369,7 +369,47 @@ print(open("output/round5_report.txt").read().split("STEP 5")[0])'''),
 print(rank.round(2).to_string())'''),
 ], "08 Round 5: feature-prioritised machine learning, and the full ranking"), "notebooks/08_feature_ml_ranking.ipynb")
 
-print("notebooks 01 to 08 written")
+# ------------------------------------------------------------------ 09 rounds 6 to 9 and closure
+write(nb([
+    ("md", "## What this notebook does\nRounds 6 to 9 tried every remaining legitimate route to a better score: reshaping how predictions become weights, combining models, changing what the learner predicts and which learner does the predicting, and widening the feature set. All four rounds were registered before running (decision log entries D25 to D28), a closure rule (D29) fixed in advance that modelling ends after round 9, and the final model is whichever candidate holds the best development selection metric, with the hold-out reported beside it but never used to choose. This notebook walks through each round: the reasoning first, then the committed results."),
+    ("md", "### Why this cell exists\nThe next cell finds the repository root (cloning it first on Colab) so that every later cell can read the committed round outputs. It changes nothing."),
+    ("code", PATHFIX),
+    ("md", "### Why this cell exists\nRecording the exact Python and library versions makes every number in this notebook attributable to a specific environment, which is part of what makes the study rerunnable."),
+    ("code", VERSIONS),
+    ("md", "## Round 6: reshaping the allocator\nThe reasoning: candidate v4's win rates were already near the practical ceiling (84 per cent), but its recency-weighted percentile trailed the 2025 tournament reference by 20 to 30 points on two regimes. That gap is not about prediction quality; it is about how strongly a prediction is allowed to concentrate the budget. So round 6 held v4's prediction stream completely fixed and varied only three shaping choices: the allocation mechanism (gentle remaining-budget pacing against the reference's aggressive boost-now-pay-from-the-tail shape), the multiplier ceiling (5, 8 or 12 times pace), and a convexity term that amplifies extreme signals more than mild ones. If the gap closes, shape was the bottleneck; if it does not, concentration without better prediction just adds variance."),
+    ("md", "### Why this cell exists\nIt prints round 6's full grid (all twelve shape combinations with their development metrics) and the round report, straight from the committed files, so the conclusion can be checked against every configuration that lost as well as the one that won."),
+    ("code", '''import json, pandas as pd
+print(pd.read_csv("output/round6_grid.csv").round(2).to_string())
+print()
+print(open("output/round6_report.txt").read())'''),
+    ("md", "## Round 7: ensembles\nThe reasoning: mixtures of valid models are always valid because the constraint set is convex, so ensembles are legal by construction; whether they help is an empirical question this project had only partly answered. Round 3a showed that blending the two rule candidates diluted both. Round 7 completes the picture with three ensemble families: weight-level blends of v4 and v3 (the two best and most different candidates), prediction-level averaging of the two learners before any weight is formed (the classic variance-reduction move), and stacking, where a small meta-model learns how to weigh the two learners' opinions. The expectation, stated in advance: prediction-level combination is the most likely to help, weight-level blending the least, because the win-rate term punishes softened tilts."),
+    ("md", "### Why this cell exists\nIt shows all seven ensemble configurations and the round's outcome from the committed files."),
+    ("code", '''print(pd.read_csv("output/round7_grid.csv").round(2).to_string())
+print()
+print(open("output/round7_report.txt").read())'''),
+    ("md", "## Round 8: changing what and how the learner learns\nThe reasoning, in three parts. Target engineering: predicting the mean forward return treats a 5 per cent and a 50 per cent rally as different targets, though the right allocation response is similar; a lower-quartile forecast (what is the pessimistic case?) and a simple probability-of-gain classifier are targets that map more directly onto how much to buy. Model classes: random forests, elastic net, kernel ridge and a small neural network cover the main families scikit-learn offers, so that no obvious learner is left untried; the neural network was included at the researcher's direction with low expectations recorded in advance, because a few thousand effective samples is thin for one. Refinement: the same local-neighbourhood treatment that round 3b gave the rules, applied to v4's depth and learning rate, guarding against grid-coarseness luck."),
+    ("md", "### Why this cell exists\nIt shows all seventeen configurations of round 8 and the outcome."),
+    ("code", '''print(pd.read_csv("output/round8_grid.csv").round(2).to_string())
+print()
+print(open("output/round8_report.txt").read())'''),
+    ("md", "## Round 9: widening what the model can see\nThe reasoning: round 5's importance table crowned usage signals (hash rate, fees) that nobody hand-picked in rounds 1 to 3, which raises the obvious question of what else the data holds that nothing has looked at. Round 9 adds, all causally lagged: spot-volume and transaction-count momentum, slower 60-day versions of the winning usage signals, the 90-day change in the share of supply sitting on exchanges (a stock version of the netflow idea), and the Fear and Greed sentiment index, an open external series whose inclusion revised the project's earlier no-external-data decision at the researcher's direction. The registered importance procedure was re-run on the widened matrix and published before any model used it, and the learners were then restricted to the new top of the list, exactly as round 5 did."),
+    ("md", "### Why this cell exists\nIt shows the re-ranked importance table for the widened feature set, then round 9's grid and outcome. Comparing this table with round 5's shows whether the new features displaced the old top three or merely joined the tail."),
+    ("code", '''print(pd.read_csv("output/feature_importance_round9.csv", index_col=0).round(4).to_string())
+print()
+print(pd.read_csv("output/round9_grid.csv").round(2).to_string())
+print()
+print(open("output/round9_report.txt").read())'''),
+    ("md", "## Closure\nThe closure rule was fixed before any of these rounds ran: modelling stops here, and the final model is the candidate with the best development selection metric across every registered round, with its hold-out score reported beside it. The next cell prints that adjudication from the committed file. Whatever it names is the model the write-up is built around, subject to the researcher's confirmation recorded in the decision log."),
+    ("md", "### Why this cell exists\nIt prints the adjudication record: the standing best model, its metric, and each round's contribution to the journey."),
+    ("code", '''adj = json.load(open("output/final_adjudication.json"))
+print("rule:", adj["rule"])
+print("standing best:", adj["standing_best"], "at development selection", round(adj["standing_value"], 2))
+for name, r in adj["round_results"].items():
+    print(f"{name}: best {r['best_label']} -> {r['dev_metrics']['selection_metric']:.2f} "
+          + ("(beat the baseline)" if r["beats_baseline"] else "(negative result)"))'''),
+], "09 Rounds 6 to 9: shapes, ensembles, learner variants, wider features, and closure"), "notebooks/09_rounds6to9.ipynb")
+
+print("notebooks 01 to 09 written")
 
 # ------------------------------------------------------------------ part 2: tournament submission and educational notebook
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

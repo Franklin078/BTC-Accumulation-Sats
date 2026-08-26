@@ -26,7 +26,6 @@ from sklearn.ensemble import (GradientBoostingClassifier, GradientBoostingRegres
                               StackingRegressor)
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.linear_model import ElasticNet, Ridge
-from sklearn.model_selection import TimeSeriesSplit
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 
@@ -147,7 +146,9 @@ def _make_model(kind: str, cfg: "MLConfig" = None):
         return StackingRegressor(
             estimators=[("ridge", Ridge(alpha=10.0)),
                         ("hgbr", HistGradientBoostingRegressor(max_depth=3, learning_rate=0.05, max_iter=200, random_state=0))],
-            final_estimator=Ridge(alpha=1.0), cv=TimeSeriesSplit(3))
+            final_estimator=Ridge(alpha=1.0), cv=3)  # contiguous unshuffled folds; all samples
+            # in a training set have labels closed before the refit date, so internal folds
+            # cannot leak future information regardless of their arrangement
     raise ValueError(kind)
 
 

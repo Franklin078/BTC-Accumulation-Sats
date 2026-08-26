@@ -7,6 +7,7 @@ are constants here so every round applies exactly the same rules.
 """
 import json
 import logging
+import os
 import time
 
 import numpy as np
@@ -22,6 +23,9 @@ def run_round(round_name: str, registration: str, baseline_name: str, baseline_v
               configs: list, out_prefix: str, df=None, probe_winner: bool = True) -> dict:
     """configs: list of dicts {"label": str, "fn": strategy_function, "feats": DataFrame, ...meta}."""
     logging.getLogger().setLevel(logging.WARNING)
+    if os.path.exists(f"output/{out_prefix}_result.json"):
+        print(f"{round_name}: found existing output/{out_prefix}_result.json, skipping recompute (delete the file to re-run)")
+        return json.load(open(f"output/{out_prefix}_result.json"))
     if df is None:
         df = load_btc()
     rows, t0 = [], time.time()
