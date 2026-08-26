@@ -316,7 +316,39 @@ pd.concat([old, led]).to_csv(path, index=False); print("ledger rows:", len(old) 
 json.dump({"data_last_day": df.index.max().strftime("%Y-%m-%d"), "results": res.to_dict(orient="records")}, open("output/results_summary.json", "w"), indent=2)'''),
 ], "06 Results across regimes"), "notebooks/06_results.ipynb")
 
-print("notebooks 01 to 06 written")
+# ------------------------------------------------------------------ 07 machine learning round
+write(nb([
+    ("md", "## What this notebook does
+Round 4 asks whether a machine-learning model, trained and deployed with no access to future information, beats the rule-based candidates. This notebook presents the registration, the mechanics that keep the learner causal, the saved grid and the outcome. Like notebook 04, it reads committed round outputs and tunes nothing."),
+    ("code", PATHFIX), ("code", VERSIONS),
+    ("md", "### How the learner is kept causal
+Three mechanisms, all tested by the tournament's own probe. First, every feature is lagged at least one day. Second, training is purged walk-forward: the model refits every 90 days, and a sample only enters training once its H-day label has fully closed before the refit date, so no label ever carries information from after the day it is used. Third, the prediction stream is standardised against the expanding mean and deviation of past predictions only, then mapped through the same remaining-budget pacing allocator as every other candidate. The probe re-runs this entire pipeline, training included, on masked data at 51 probe dates."),
+    ("md", "### Registration and mechanics"),
+    ("code", '''print(open("model/select_round4.py").read().split('"""')[1])'''),
+    ("code", '''print(open("model/ml.py").read().split('"""')[1])'''),
+    ("md", "### Grid and outcome"),
+    ("code", '''import json, pandas as pd
+g = pd.read_csv("output/selection_grid_round4.csv")
+print(g[[c for c in ["model","horizon","a_ml","win_rate","mean_pct","selection_metric","rw_spd_pct"] if c in g.columns]].round(2).to_string())
+print()
+print(open("output/round4_report.txt").read())'''),
+    ("md", "### Prediction sanity checks
+Out-of-sample predictive power is reported as the rank correlation between the walk-forward predictions and the realised forward returns, per year. Weak or unstable correlations with a strong backtest would be a warning sign; weak correlations with a weak backtest are simply an honest negative."),
+    ("code", '''import numpy as np
+from model.regimes import load_btc
+from model.ml import MLConfig, walk_forward_predictions
+r4 = json.load(open("output/selection_result_round4.json")); ch = r4["chosen"]
+cfg = MLConfig(model=str(ch["model"]), horizon=int(ch["horizon"]), a_ml=float(ch["a_ml"]))
+df = load_btc(); pred = walk_forward_predictions(df, cfg)
+p = df["PriceUSD_coinmetrics"]; fwd = np.log(p.shift(-cfg.horizon)/p)
+both = pd.concat([pred, fwd.rename("fwd")], axis=1).dropna()
+ic = both.groupby(both.index.year).apply(lambda d: d["ml_pred"].corr(d["fwd"], method="spearman"))
+print("rank information coefficient by year (prediction vs realised forward return):")
+print(ic.round(3).to_string())
+print("overall:", round(both["ml_pred"].corr(both["fwd"], method="spearman"), 4))'''),
+], "07 Round 4: a causal machine-learning candidate"), "notebooks/07_ml.ipynb")
+
+print("notebooks 01 to 07 written")
 
 # ------------------------------------------------------------------ part 2: tournament submission and educational notebook
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
