@@ -1,0 +1,8 @@
+ROUND 8 (ML variants): 16 configurations, single pass
+best: hgbr depth=2 lr=0.1 -> dev selection 72.64
+baseline (round 6 winner (shape=pace m_max=12.0 b=0.0)): 73.12 -> DOES NOT BEAT the baseline (negative result)
+best config hold-out: win 54.29  RW 65.34  score 59.81
+best config regime A: win 85.57  RW 37.92  score 61.75
+best config regime B: win 86.14  RW 65.34  score 75.74
+best config regime C: win 84.81  RW 27.56  score 56.19
+gates: probe PASS (0/51), constraints PASS

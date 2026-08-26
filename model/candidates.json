@@ -70,5 +70,17 @@
       "fee_mom",
       "cycle_pos"
     ]
+  },
+  "Candidate v5 (v4 signal, ceiling 12, round 6)": {
+    "type": "ml",
+    "model": "hgbr",
+    "horizon": 90,
+    "a_ml": 2.0,
+    "features": [
+      "hash_mom",
+      "fee_mom",
+      "cycle_pos"
+    ],
+    "m_max": 12.0
   }
 }

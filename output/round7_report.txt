@@ -1,0 +1,8 @@
+ROUND 7 (ensembles): 7 configurations, single pass
+best: weight blend alpha_v4=0.75 -> dev selection 71.19
+baseline (round 6 winner (shape=pace m_max=12.0 b=0.0)): 73.12 -> DOES NOT BEAT the baseline (negative result)
+best config hold-out: win 49.52  RW 61.05  score 55.29
+best config regime A: win 85.02  RW 36.51  score 60.77
+best config regime B: win 85.28  RW 61.05  score 73.17
+best config regime C: win 84.85  RW 35.73  score 60.29
+gates: probe PASS (0/51), constraints PASS

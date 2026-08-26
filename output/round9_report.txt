@@ -1,0 +1,8 @@
+ROUND 9 (feature expansion): 8 configurations, single pass
+best: hgbr v2-top3 a=2.0 -> dev selection 69.41
+baseline (round 6 winner (shape=pace m_max=12.0 b=0.0)): 73.12 -> DOES NOT BEAT the baseline (negative result)
+best config hold-out: win 65.48  RW 63.60  score 64.54
+best config regime A: win 82.05  RW 41.43  score 61.74
+best config regime B: win 83.57  RW 63.60  score 73.58
+best config regime C: win 80.98  RW 33.91  score 57.44
+gates: probe PASS (0/51), constraints PASS

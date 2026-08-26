@@ -1,0 +1,68 @@
+{
+  "registration": "D28",
+  "best_label": "hgbr v2-top3 a=2.0",
+  "dev_metrics": {
+    "win_rate": 87.34429496761335,
+    "mean_pct": 51.47405588487468,
+    "rw_spd_pct": 70.72796625723139,
+    "selection_metric": 69.40917542624402
+  },
+  "baseline_name": "round 6 winner (shape=pace m_max=12.0 b=0.0)",
+  "baseline_value": 73.12480339564198,
+  "beats_baseline": false,
+  "data_last_day": "2026-08-24",
+  "holdout": {
+    "windows": 420.0,
+    "win_rate": 65.47619047619048,
+    "rw_spd_pct": 63.59996713637746,
+    "score": 64.53807880628398,
+    "mean_pct": 40.67925131047217,
+    "uniform_rw_spd_pct": 48.610267551450406,
+    "mean_excess": 4.866867728798749,
+    "min_excess": -15.532438563670372,
+    "regime": "H",
+    "start": "2024-07-01",
+    "end": "2026-08-24"
+  },
+  "regime_A": {
+    "windows": 2557.0,
+    "win_rate": 82.04927649589364,
+    "rw_spd_pct": 41.42676250967571,
+    "score": 61.738019502784674,
+    "mean_pct": 49.55625991436181,
+    "uniform_rw_spd_pct": 38.15444104587961,
+    "mean_excess": 10.85573119499586,
+    "min_excess": -15.532438563670372,
+    "regime": "A",
+    "start": "2018-01-01",
+    "end": "2025-12-31"
+  },
+  "regime_B": {
+    "windows": 2793.0,
+    "win_rate": 83.56605800214822,
+    "rw_spd_pct": 63.599967136377444,
+    "score": 73.58301256926283,
+    "mean_pct": 49.81744877941609,
+    "uniform_rw_spd_pct": 48.61026755145039,
+    "mean_excess": 11.20548102876089,
+    "min_excess": -15.532438563670372,
+    "regime": "B",
+    "start": "2018-01-01",
+    "end": "2026-08-24"
+  },
+  "regime_C": {
+    "windows": 3075.0,
+    "win_rate": 80.97560975609757,
+    "rw_spd_pct": 33.913031319500504,
+    "score": 57.44432053779904,
+    "mean_pct": 50.73257091312154,
+    "uniform_rw_spd_pct": 41.993673818882655,
+    "mean_excess": 11.391228661055571,
+    "min_excess": -10.510739867284954,
+    "regime": "C",
+    "start": "2016-01-01",
+    "end": "2025-06-01"
+  },
+  "probe_passed": true,
+  "constraints_passed": true
+}

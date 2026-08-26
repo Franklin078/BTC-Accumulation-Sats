@@ -45,6 +45,12 @@ def build_registry() -> dict:
             reg["Candidate v4 (feature-prioritised ML, round 5)"] = {
                 "type": "ml", "model": str(ch["model"]), "horizon": 90,
                 "a_ml": float(ch["a_ml"]), "features": str(ch["features"]).split(";")}
+    if os.path.exists("output/round6_result.json"):
+        r6 = json.load(open("output/round6_result.json"))
+        if r6.get("beats_baseline"):
+            reg["Candidate v5 (v4 signal, ceiling 12, round 6)"] = {
+                "type": "ml", "model": "hgbr", "horizon": 90, "a_ml": 2.0,
+                "features": ["hash_mom", "fee_mom", "cycle_pos"], "m_max": 12.0}
     json.dump(reg, open(REG_PATH, "w"), indent=2)
     return reg
 
@@ -59,7 +65,7 @@ def load_candidates() -> dict:
         elif spec["type"] == "ml":
             from model.ml import MLConfig, make_ml_strategy
             cfg = MLConfig(model=spec["model"], horizon=int(spec["horizon"]), a_ml=float(spec["a_ml"]),
-                           features=tuple(spec["features"]))
+                           features=tuple(spec["features"]), m_max=float(spec.get("m_max", 5.0)))
             out[name] = make_ml_strategy(cfg)
         elif spec["type"] == "blend":
             f1 = make_strategy(Params(**spec["v1_params"]))
