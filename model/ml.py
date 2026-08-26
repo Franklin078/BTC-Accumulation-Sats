@@ -50,7 +50,12 @@ class MLConfig:
     b_quad: float = 0.0       # convexity: log m = a z + b z |z|
     hgbr_depth: int = 3
     hgbr_lr: float = 0.05
-    matrix: str = "v1"        # "v1" (round 4 set) or "v2" (round 9 expansion)
+    matrix: str = "v1"        # "v1" (round 4 set), "v2" (round 9 expansion) or "v3" (round 10)
+    horizons: tuple = ()      # non-empty: a committee; each horizon's forecast is causally
+                              # standardised, then the z-scores are averaged with equal weights
+    sample_halflife: float = 0.0  # >0: training samples decay with age, half-life in days
+    a_pos: float = 0.0        # asymmetric multiplier: response to positive signals
+    a_neg: float = 0.0        # response to negative signals (both fall back to a_ml when 0)
 
 
 def fetch_fear_greed(path: str = "data/fear_greed.csv") -> pd.Series:
@@ -114,6 +119,16 @@ def feature_matrix(df: pd.DataFrame, matrix: str = "v1") -> pd.DataFrame:
     X["roi_1yr"] = roi.astype(float).shift(1) if roi is not None else lag / lag.shift(365) - 1
     dsh = np.array([(d - HALVINGS[HALVINGS <= d].max()).days if (HALVINGS <= d).any() else np.nan for d in df.index], dtype=float)
     X["cycle_pos"] = np.cos(2 * np.pi * dsh / 1461.0)
+
+    if matrix == "v3":
+        X["vol_usd_mom"] = momentum("volume_reported_spot_usd_1d", 30, 365)
+        X["tx_mom"] = momentum("TxCnt", 30, 365)
+        sply_ex3, sply3 = _col(df, "SplyExNtv"), _col(df, "SplyCur")
+        if sply_ex3 is not None and sply3 is not None:
+            share3 = (sply_ex3 / sply3).astype(float).shift(1)
+            X["exch_share_chg"] = share3 - share3.shift(90)
+        else:
+            X["exch_share_chg"] = np.nan
 
     if matrix == "v2":
         X["vol_usd_mom"] = momentum("volume_reported_spot_usd_1d", 30, 365)
@@ -194,7 +209,11 @@ def walk_forward_predictions(df: pd.DataFrame, cfg: MLConfig) -> pd.Series:
             Xt, yt = X_arr[train_mask], y_arr[train_mask]
             scaler = StandardScaler().fit(Xt) if cfg.model in SCALED_KINDS else None
             Xin = scaler.transform(Xt) if scaler is not None else Xt
-            fitted = [(k, _make_model(k, cfg).fit(Xin, yt)) for k in kinds]
+            fit_kw = {}
+            if cfg.sample_halflife > 0:
+                age = start - np.flatnonzero(train_mask)   # days since each sample's date
+                fit_kw["sample_weight"] = 0.5 ** (age / cfg.sample_halflife)
+            fitted = [(k, _make_model(k, cfg).fit(Xin, yt, **fit_kw)) for k in kinds]
         if fitted is not None:
             seg = slice(start, min(start + RETRAIN_EVERY, n))
             ok = vx[seg]
@@ -220,14 +239,28 @@ def causal_standardise(pred: pd.Series, clip: float) -> pd.Series:
 
 
 def build_ml_features(df: pd.DataFrame, cfg: MLConfig) -> pd.DataFrame:
-    """Feature frame for the allocator: base columns plus the causal ML signal f_ml_z."""
+    """Feature frame for the allocator: base columns plus the causal ML signal f_ml_z.
+
+    With cfg.horizons set, the signal is a committee: each horizon's walk-forward forecast is
+    causally standardised on its own history, and the z-scores are averaged with fixed equal
+    weights. No weights are fitted, so the combination introduces no additional selection."""
+    from dataclasses import replace
     feats = construct_features(df, Params())
-    feats["f_ml_z"] = causal_standardise(walk_forward_predictions(df, cfg), cfg.clip_ml)
+    if cfg.horizons:
+        zs = [causal_standardise(walk_forward_predictions(df, replace(cfg, horizon=h, horizons=())), cfg.clip_ml)
+              for h in cfg.horizons]
+        feats["f_ml_z"] = (sum(zs) / len(zs)).clip(-cfg.clip_ml, cfg.clip_ml)
+    else:
+        feats["f_ml_z"] = causal_standardise(walk_forward_predictions(df, cfg), cfg.clip_ml)
     return feats
 
 
 def _multiplier(z: float, cfg: MLConfig) -> float:
-    log_m = cfg.a_ml * z + cfg.b_quad * z * abs(z)
+    if cfg.a_pos > 0 or cfg.a_neg > 0:
+        a = (cfg.a_pos if z >= 0 else cfg.a_neg) or cfg.a_ml
+    else:
+        a = cfg.a_ml
+    log_m = a * z + cfg.b_quad * z * abs(z)
     return min(max(float(np.exp(log_m)), cfg.m_min), cfg.m_max)
 
 
