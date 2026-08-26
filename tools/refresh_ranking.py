@@ -13,6 +13,26 @@ import pandas as pd
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 
+# every ranked model carries its category: a learned signal (machine learning), a hand-set
+# rule (rules), a mixture of the two, or a benchmark the candidates are measured against;
+# an unmapped name shows up loudly as "unclassified" rather than being guessed
+CATEGORY = {
+    "Candidate v1 (drawdown-led, round 1)": "rules",
+    "Candidate v2 (MVRV + netflow, round 2)": "rules",
+    "Candidate v3 (refined MVRV + netflow, round 3b)": "rules",
+    "Candidate v4 (feature-prioritised ML, round 5)": "machine learning",
+    "Candidate v5 (v4 signal, ceiling 12, round 6)": "machine learning",
+    "Candidate v6 (v5 with asymmetric response, round 11)": "machine learning",
+    "Round 4 best (all-feature ridge, not a candidate)": "machine learning",
+    "Round 7 best (v4/v3 blend 0.75, negative round)": "blend (ML + rules)",
+    "Round 8 best (hgbr depth 2, negative round)": "machine learning",
+    "Round 9 best (expanded features, negative round)": "machine learning",
+    "Round 10 best (synthesis committee, negative round)": "machine learning",
+    "Tournament 2025 reference": "benchmark (rules)",
+    "Upstream 2026 baseline (200-MA)": "benchmark (rules)",
+    "Uniform DCA": "benchmark (uniform)",
+}
+
 rows = []
 reg = pd.read_csv("output/results_regimes.csv")
 for m in reg.model.unique():
@@ -31,6 +51,7 @@ for label, path in extras:
         rows.append({"model": label, **{f"score_{k}": float(r[f"regime_{k}"]["score"]) for k in "ABC"}})
 
 ranking = pd.DataFrame(rows).drop_duplicates(subset="model")
+ranking.insert(1, "category", ranking["model"].map(lambda m: CATEGORY.get(m, "unclassified")))
 ranking["mean_ABC"] = ranking[["score_A", "score_B", "score_C"]].mean(axis=1)
 ranking = ranking.sort_values("mean_ABC", ascending=False).reset_index(drop=True)
 ranking.index = ranking.index + 1
