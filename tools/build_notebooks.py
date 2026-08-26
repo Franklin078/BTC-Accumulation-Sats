@@ -318,11 +318,9 @@ json.dump({"data_last_day": df.index.max().strftime("%Y-%m-%d"), "results": res.
 
 # ------------------------------------------------------------------ 07 machine learning round
 write(nb([
-    ("md", "## What this notebook does
-Round 4 asks whether a machine-learning model, trained and deployed with no access to future information, beats the rule-based candidates. This notebook presents the registration, the mechanics that keep the learner causal, the saved grid and the outcome. Like notebook 04, it reads committed round outputs and tunes nothing."),
+    ("md", "## What this notebook does\nRound 4 asks whether a machine-learning model, trained and deployed with no access to future information, beats the rule-based candidates. This notebook presents the registration, the mechanics that keep the learner causal, the saved grid and the outcome. Like notebook 04, it reads committed round outputs and tunes nothing."),
     ("code", PATHFIX), ("code", VERSIONS),
-    ("md", "### How the learner is kept causal
-Three mechanisms, all tested by the tournament's own probe. First, every feature is lagged at least one day. Second, training is purged walk-forward: the model refits every 90 days, and a sample only enters training once its H-day label has fully closed before the refit date, so no label ever carries information from after the day it is used. Third, the prediction stream is standardised against the expanding mean and deviation of past predictions only, then mapped through the same remaining-budget pacing allocator as every other candidate. The probe re-runs this entire pipeline, training included, on masked data at 51 probe dates."),
+    ("md", "### How the learner is kept causal\nThree mechanisms, all tested by the tournament's own probe. First, every feature is lagged at least one day. Second, training is purged walk-forward: the model refits every 90 days, and a sample only enters training once its H-day label has fully closed before the refit date, so no label ever carries information from after the day it is used. Third, the prediction stream is standardised against the expanding mean and deviation of past predictions only, then mapped through the same remaining-budget pacing allocator as every other candidate. The probe re-runs this entire pipeline, training included, on masked data at 51 probe dates."),
     ("md", "### Registration and mechanics"),
     ("code", '''print(open("model/select_round4.py").read().split('"""')[1])'''),
     ("code", '''print(open("model/ml.py").read().split('"""')[1])'''),
@@ -332,8 +330,7 @@ g = pd.read_csv("output/selection_grid_round4.csv")
 print(g[[c for c in ["model","horizon","a_ml","win_rate","mean_pct","selection_metric","rw_spd_pct"] if c in g.columns]].round(2).to_string())
 print()
 print(open("output/round4_report.txt").read())'''),
-    ("md", "### Prediction sanity checks
-Out-of-sample predictive power is reported as the rank correlation between the walk-forward predictions and the realised forward returns, per year. Weak or unstable correlations with a strong backtest would be a warning sign; weak correlations with a weak backtest are simply an honest negative."),
+    ("md", "### Prediction sanity checks\nOut-of-sample predictive power is reported as the rank correlation between the walk-forward predictions and the realised forward returns, per year. Weak or unstable correlations with a strong backtest would be a warning sign; weak correlations with a weak backtest are simply an honest negative."),
     ("code", '''import numpy as np
 from model.regimes import load_btc
 from model.ml import MLConfig, walk_forward_predictions
