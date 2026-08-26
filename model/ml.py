@@ -72,6 +72,16 @@ def fetch_fear_greed(path: str = "data/fear_greed.csv") -> pd.Series:
     return s
 
 
+def _col(df: pd.DataFrame, name: str):
+    """Resolve a CoinMetrics column under either naming convention: the live CSV uses bare
+    names; the frozen tournament parquet suffixes them with _coinmetrics."""
+    if name in df.columns:
+        return df[name]
+    if f"{name}_coinmetrics" in df.columns:
+        return df[f"{name}_coinmetrics"]
+    return None
+
+
 def feature_matrix(df: pd.DataFrame, matrix: str = "v1") -> pd.DataFrame:
     """The registered feature sets. v1 is the round-4 matrix; v2 adds the round-9 expansion.
     Every column uses data up to the previous day only."""
@@ -82,7 +92,8 @@ def feature_matrix(df: pd.DataFrame, matrix: str = "v1") -> pd.DataFrame:
     X["ma_gap"] = base["f_ma_gap"]
     X["drawdown"] = base["f_drawdown"]
     X["netflow_z"] = base["f_netflow_z"]
-    X["mvrv"] = df["CapMVRVCur"].astype(float).shift(1) if "CapMVRVCur" in df.columns else np.nan
+    mv = _col(df, "CapMVRVCur")
+    X["mvrv"] = mv.astype(float).shift(1) if mv is not None else np.nan
     X["ret_7"] = lag / lag.shift(7) - 1
     X["ret_30"] = lag / lag.shift(30) - 1
     X["ret_90"] = lag / lag.shift(90) - 1
@@ -90,15 +101,17 @@ def feature_matrix(df: pd.DataFrame, matrix: str = "v1") -> pd.DataFrame:
     X["vol_30"] = r.rolling(30, min_periods=15).std() * np.sqrt(365)
 
     def momentum(col, short, long):
-        if col not in df.columns:
+        series = _col(df, col)
+        if series is None:
             return pd.Series(np.nan, index=df.index)
-        s = df[col].astype(float).shift(1)
+        s = series.astype(float).shift(1)
         return s.rolling(short, min_periods=max(5, short * 2 // 3)).mean() / s.rolling(long, min_periods=long // 2).mean() - 1
 
     X["adr_mom"] = momentum("AdrActCnt", 30, 365)
     X["fee_mom"] = momentum("FeeTotNtv", 30, 365)
     X["hash_mom"] = momentum("HashRate", 30, 365)
-    X["roi_1yr"] = df["ROI1yr"].astype(float).shift(1) if "ROI1yr" in df.columns else lag / lag.shift(365) - 1
+    roi = _col(df, "ROI1yr")
+    X["roi_1yr"] = roi.astype(float).shift(1) if roi is not None else lag / lag.shift(365) - 1
     dsh = np.array([(d - HALVINGS[HALVINGS <= d].max()).days if (HALVINGS <= d).any() else np.nan for d in df.index], dtype=float)
     X["cycle_pos"] = np.cos(2 * np.pi * dsh / 1461.0)
 
@@ -107,8 +120,9 @@ def feature_matrix(df: pd.DataFrame, matrix: str = "v1") -> pd.DataFrame:
         X["tx_mom"] = momentum("TxCnt", 30, 365)
         X["hash_mom_60"] = momentum("HashRate", 60, 365)
         X["fee_mom_60"] = momentum("FeeTotNtv", 60, 365)
-        if "SplyExNtv" in df.columns and "SplyCur" in df.columns:
-            share = (df["SplyExNtv"] / df["SplyCur"]).astype(float).shift(1)
+        sply_ex, sply = _col(df, "SplyExNtv"), _col(df, "SplyCur")
+        if sply_ex is not None and sply is not None:
+            share = (sply_ex / sply).astype(float).shift(1)
             X["exch_share_chg"] = share - share.shift(90)
         else:
             X["exch_share_chg"] = np.nan
@@ -169,6 +183,10 @@ def walk_forward_predictions(df: pd.DataFrame, cfg: MLConfig) -> pd.Series:
     y_arr = y.to_numpy(float)
     X_arr = X.to_numpy(float)
     vx = valid_x.to_numpy()
+    if n > MIN_TRAIN_LABELS + RETRAIN_EVERY and vx.sum() == 0:
+        raise ValueError("no valid feature rows on a frame long enough to train: the input "
+                         "dataframe is probably missing the CoinMetrics columns this model "
+                         "needs (check column naming); refusing to degenerate to uniform weights")
     kinds = ["ridge", "hgbr"] if cfg.model == "predavg" else [cfg.model]
     for start in range(0, n, RETRAIN_EVERY):
         train_mask = vx & (label_closed < start) & np.isfinite(y_arr)

@@ -57,10 +57,17 @@ def main():
     f_v4 = cands["Candidate v4 (feature-prioritised ML, round 5)"]
     f_v3 = cands["Candidate v3 (refined MVRV + netflow, round 3b)"]
     base_feats = cache[next(k for k in cache if k[0] == "hgbr" and k[3] == "v1" and k[4] == 3)]
+    # each leg must see the feature frame built with ITS OWN parameters (candidate v3 centres
+    # MVRV at 1.6, not the default 1.8); the blend slices each leg's frame by the window's
+    # dates, so neither leg consumes features computed under the other's configuration
+    from model.strategy import construct_features as _cf, Params as _P
+    v3_params = _P(**json.load(open("model/candidates.json"))["Candidate v3 (refined MVRV + netflow, round 3b)"]["params"])
+    feats_v3 = _cf(df, v3_params)
     configs = []
     for a in (0.25, 0.50, 0.75):
         def blend(dfw, _a=a):
-            return _a * f_v4(dfw) + (1 - _a) * f_v3(dfw)
+            idx = dfw.index
+            return _a * f_v4(base_feats.loc[idx]) + (1 - _a) * f_v3(feats_v3.loc[idx])
         configs.append({"label": f"weight blend alpha_v4={a}", "fn": blend, "feats": base_feats})
     for a_ml in (1.0, 2.0):
         configs.append(ml_config_entry(f"prediction average a={a_ml}", cache, df, model="predavg", a_ml=a_ml))
@@ -105,7 +112,7 @@ def main():
     pi = permutation_importance(m, X2.iloc[split:], y.iloc[split:], n_repeats=10, random_state=0)
     imp = pd.concat([ic, pd.Series(pi.importances_mean, index=X2.columns, name="permutation_importance")], axis=1)
     imp["avg_rank"] = (imp["abs_spearman_ic"].rank(ascending=False) + imp["permutation_importance"].rank(ascending=False)) / 2
-    imp = imp.sort_values("avg_rank")
+    imp = imp.sort_values(["avg_rank", "abs_spearman_ic"], ascending=[True, False], kind="stable")
     imp.to_csv("output/feature_importance_round9.csv")
     ranked = list(imp.index)
     print("round 9 priority order:", ranked, flush=True)

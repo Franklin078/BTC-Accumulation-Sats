@@ -59,7 +59,8 @@ def importance_table(df: pd.DataFrame) -> pd.DataFrame:
     t["rank_ic"] = t["abs_spearman_ic"].rank(ascending=False)
     t["rank_perm"] = t["permutation_importance"].rank(ascending=False)
     t["avg_rank"] = (t["rank_ic"] + t["rank_perm"]) / 2
-    return t.sort_values("avg_rank")
+    # deterministic tie-break: average rank, then the stronger rank correlation, then position
+    return t.sort_values(["avg_rank", "abs_spearman_ic"], ascending=[True, False], kind="stable")
 
 
 def main():

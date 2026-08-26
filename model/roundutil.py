@@ -23,11 +23,19 @@ def run_round(round_name: str, registration: str, baseline_name: str, baseline_v
               configs: list, out_prefix: str, df=None, probe_winner: bool = True) -> dict:
     """configs: list of dicts {"label": str, "fn": strategy_function, "feats": DataFrame, ...meta}."""
     logging.getLogger().setLevel(logging.WARNING)
-    if os.path.exists(f"output/{out_prefix}_result.json"):
-        print(f"{round_name}: found existing output/{out_prefix}_result.json, skipping recompute (delete the file to re-run)")
-        return json.load(open(f"output/{out_prefix}_result.json"))
     if df is None:
         df = load_btc()
+    import hashlib
+    fingerprint = hashlib.sha256(("|".join(sorted(c["label"] for c in configs))
+                                  + "|" + df.index.max().strftime("%Y-%m-%d")).encode()).hexdigest()[:16]
+    if os.path.exists(f"output/{out_prefix}_result.json"):
+        prev = json.load(open(f"output/{out_prefix}_result.json"))
+        if prev.get("fingerprint") == fingerprint:
+            prev["beats_baseline"] = bool(prev["dev_metrics"]["selection_metric"] > baseline_value)
+            print(f"{round_name}: cached result matches fingerprint {fingerprint}; reusing "
+                  f"(beat flag recomputed against current baseline {baseline_value:.2f})")
+            return prev
+        print(f"{round_name}: cached result is stale (code, configs or data changed); recomputing")
     rows, t0 = [], time.time()
     by_label = {}
     for i, c in enumerate(configs, 1):
@@ -53,7 +61,7 @@ def run_round(round_name: str, registration: str, baseline_name: str, baseline_v
     result = {"registration": registration, "best_label": str(best["label"]),
               "dev_metrics": {k: float(best[k]) for k in ["win_rate", "mean_pct", "rw_spd_pct", "selection_metric"]},
               "baseline_name": baseline_name, "baseline_value": baseline_value, "beats_baseline": bool(beats),
-              "data_last_day": df.index.max().strftime("%Y-%m-%d")}
+              "data_last_day": df.index.max().strftime("%Y-%m-%d"), "fingerprint": fingerprint}
 
     winner = by_label[str(best["label"])]
     spd, sh = evaluate(df, winner["fn"], winner["feats"], HOLDOUT)
