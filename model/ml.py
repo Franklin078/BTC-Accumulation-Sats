@@ -38,6 +38,7 @@ class MLConfig:
     clip_ml: float = 3.0
     m_min: float = 0.25
     m_max: float = 5.0
+    features: tuple = ()      # empty tuple = all columns of feature_matrix; else the named subset
 
 
 def feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
@@ -78,6 +79,8 @@ def _make_model(kind: str):
 def walk_forward_predictions(df: pd.DataFrame, cfg: MLConfig) -> pd.Series:
     """Out-of-sample prediction for every day, from models trained only on fully closed labels."""
     X = feature_matrix(df)
+    if cfg.features:
+        X = X[list(cfg.features)]
     p = df[PRICE_COL].astype(float)
     y = np.log(p.shift(-cfg.horizon) / p)          # label for sample date s closes at s + H
     valid_x = X.notna().all(axis=1)
