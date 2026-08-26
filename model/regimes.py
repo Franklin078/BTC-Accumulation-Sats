@@ -17,6 +17,12 @@ from template.prelude_template import compute_cycle_spd, load_data
 PRICE_COL = "PriceUSD_coinmetrics"
 RHO = 0.9
 
+# Windows starting on or after this date are sequestered (decision log D32): they complete only
+# after the modelling closure of 26 August 2026, no selection decision has ever seen them, and
+# they are to be scored exactly once, for the manuscript's final out-of-sample table. evaluate()
+# warns if a scoring run includes them so they cannot be consumed by accident.
+SEQUESTERED_START = "2025-09-01"
+
 
 @dataclass(frozen=True)
 class Regime:
@@ -71,6 +77,11 @@ def evaluate(df: pd.DataFrame, strategy_fn, features_df: pd.DataFrame, regime: R
     """Run the upstream rolling-window SPD computation for one regime and summarise it."""
     end = regime.resolve_end(df)
     spd = compute_cycle_spd(df, strategy_fn, features_df=features_df, start_date=regime.start, end_date=end, validate_weights=True)
+    starts = pd.to_datetime([w.split(" \u2192 ")[0] for w in spd.index])
+    n_seq = int((starts >= pd.Timestamp(SEQUESTERED_START)).sum())
+    if n_seq:
+        logging.warning(f"evaluate(): {n_seq} sequestered windows (starts >= {SEQUESTERED_START}) "
+                        f"included in this run; these are reserved for the one-time final reading (D32)")
     summary = score_table(spd)
     summary.update({"regime": regime.key, "start": regime.start, "end": end})
     return spd, summary

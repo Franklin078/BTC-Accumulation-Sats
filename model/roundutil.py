@@ -74,7 +74,10 @@ def run_round(round_name: str, registration: str, baseline_name: str, baseline_v
     if probe_winner:
         print("running the tournament forward-leakage probe on the winner...", flush=True)
         pr = forward_leakage_probe(df, winner["fn"], "2018-01-01", REGIMES["B"].resolve_end(df))
-        cc = constraint_check(df, winner["fn"], "2018-01-01", REGIMES["B"].resolve_end(df))
+        # the probe must see raw data (it masks future rows), but the constraint check must test
+        # the weights that were actually scored, so it slices the winner's own feature frame
+        wf, wfeats = winner["fn"], winner["feats"]
+        cc = constraint_check(df, lambda win: wf(wfeats.loc[win.index]), "2018-01-01", REGIMES["B"].resolve_end(df))
         lines.append(f"gates: probe {'PASS' if pr['passed'] else 'FAIL'} ({len(pr['failures'])}/{pr['probes']}), "
                      f"constraints {'PASS' if cc['passed'] else 'FAIL'}")
         result["probe_passed"] = bool(pr["passed"])

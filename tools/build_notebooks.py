@@ -262,7 +262,7 @@ write(nb([
 from model.regimes import load_btc, REGIMES, evaluate, Regime
 from model.strategy import construct_features, Params, make_strategy
 from model import reference_2025
-from model.candidates import build_registry, load_candidates
+from model.candidates import build_registry, load_candidates_with_feats
 from template.model_development_template import precompute_features, compute_window_weights
 df = load_btc(); P = json.load(open("model/final_params.json")); p = Params(**P); feats = construct_features(df, p)
 upfeats = precompute_features(df)
@@ -270,16 +270,22 @@ def upstream_fn(w):
     if w.empty: return pd.Series(dtype=float)
     return compute_window_weights(upfeats, w.index.min(), w.index.max(), w.index.max())
 build_registry()
-models = dict(load_candidates())
-models.update({"Uniform DCA": lambda w: pd.Series(1.0/len(w), index=w.index),
-               "Upstream 2026 baseline (200-MA)": upstream_fn, "Tournament 2025 reference": reference_2025.compute_weights})'''),
+# every candidate is scored against the feature frame built under its own configuration;
+# a shared frame would silently degenerate the learner candidates to uniform pacing
+models = {name: pair for name, pair in load_candidates_with_feats(df).items()}
+models.update({"Uniform DCA": (lambda w: pd.Series(1.0/len(w), index=w.index), feats),
+               "Upstream 2026 baseline (200-MA)": (upstream_fn, feats),
+               "Tournament 2025 reference": (reference_2025.compute_weights, feats)})'''),
     ("md", "### The triples for every regime. Uniform DCA against itself ties every window, so its win rate is set to zero rather than left to floating-point noise."),
     ("code", '''rows = []; tables = {}
-for name, fn in models.items():
+for name, (fn, model_feats) in models.items():
     for k, r in REGIMES.items():
-        spd, s = evaluate(df, fn, feats, r); s["model"] = name; tables[(name, k)] = spd
+        spd, s = evaluate(df, fn, model_feats, r); s["model"] = name; tables[(name, k)] = spd
         if name == "Uniform DCA":  # identical weights tie every window; any "wins" are floating-point dust
             s["win_rate"] = 0.0; s["score"] = 0.5 * s["rw_spd_pct"]
+        elif s["win_rate"] == 0.0 and abs(s["mean_excess"]) < 1e-12:
+            raise AssertionError(f"{name} scored identically to uniform DCA: its feature frame is "
+                                 "probably missing the columns it needs (degeneracy tripwire)")
         rows.append(s)
 res = pd.DataFrame(rows)[["model", "regime", "start", "end", "windows", "win_rate", "rw_spd_pct", "score", "uniform_rw_spd_pct", "mean_pct", "mean_excess"]]
 res.to_csv("output/results_regimes.csv", index=False); res.round(2)'''),

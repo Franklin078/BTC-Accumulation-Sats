@@ -23,8 +23,12 @@ from model.ml import MLConfig, build_ml_features, fetch_fear_greed, make_ml_stra
 from model.roundutil import run_round
 from model.regimes import load_btc
 
-V4 = dict(model="hgbr", horizon=90, a_ml=2.0, features=("hash_mom", "fee_mom", "cycle_pos"))
-V4_DEV = 71.14
+# candidate v4's configuration and development metric come from the committed round-5 result,
+# never from constants that could drift if round 5 were ever re-run
+_r5 = json.load(open("output/selection_result_round5.json"))
+V4 = dict(model=str(_r5["chosen"]["model"]), horizon=90, a_ml=float(_r5["chosen"]["a_ml"]),
+          features=tuple(str(_r5["chosen"]["features"]).split(";")))
+V4_DEV = float(_r5["dev_metrics"]["selection_metric"])
 
 
 def ml_config_entry(label, feats_cache, df, **kw):
@@ -96,8 +100,6 @@ def main():
     # ---------------- round 9: feature expansion ----------------
     fg = fetch_fear_greed()
     df2 = df.join(fg, how="left")
-    from model.select_round5 import importance_table
-    import model.select_round5 as r5mod
     from model.ml import feature_matrix
     X2 = feature_matrix(df2, "v2").loc["2018-01-01":"2023-06-30"]
     p = df2["PriceUSD_coinmetrics"].astype(float)
@@ -111,7 +113,9 @@ def main():
     m = _make_model("hgbr").fit(X2.iloc[:split - 90], y.iloc[:split - 90])
     pi = permutation_importance(m, X2.iloc[split:], y.iloc[split:], n_repeats=10, random_state=0)
     imp = pd.concat([ic, pd.Series(pi.importances_mean, index=X2.columns, name="permutation_importance")], axis=1)
-    imp["avg_rank"] = (imp["abs_spearman_ic"].rank(ascending=False) + imp["permutation_importance"].rank(ascending=False)) / 2
+    imp["rank_ic"] = imp["abs_spearman_ic"].rank(ascending=False)
+    imp["rank_perm"] = imp["permutation_importance"].rank(ascending=False)
+    imp["avg_rank"] = (imp["rank_ic"] + imp["rank_perm"]) / 2
     imp = imp.sort_values(["avg_rank", "abs_spearman_ic"], ascending=[True, False], kind="stable")
     imp.to_csv("output/feature_importance_round9.csv")
     ranked = list(imp.index)

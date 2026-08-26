@@ -81,6 +81,8 @@
       "fee_mom",
       "cycle_pos"
     ],
-    "m_max": 12.0
+    "shape": "pace",
+    "m_max": 12.0,
+    "b_quad": 0.0
   }
 }

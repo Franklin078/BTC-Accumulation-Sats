@@ -48,11 +48,40 @@ def build_registry() -> dict:
     if os.path.exists("output/round6_result.json"):
         r6 = json.load(open("output/round6_result.json"))
         if r6.get("beats_baseline"):
+            import re as _re
+            m = _re.fullmatch(r"shape=(\w+) m_max=([\d.]+) b=([\d.]+)", str(r6["best_label"]))
+            if m is None:
+                raise ValueError(f"unrecognised round-6 winner label: {r6['best_label']!r}")
+            v4spec = reg["Candidate v4 (feature-prioritised ML, round 5)"]
             reg["Candidate v5 (v4 signal, ceiling 12, round 6)"] = {
-                "type": "ml", "model": "hgbr", "horizon": 90, "a_ml": 2.0,
-                "features": ["hash_mom", "fee_mom", "cycle_pos"], "m_max": 12.0}
+                "type": "ml", "model": v4spec["model"], "horizon": v4spec["horizon"],
+                "a_ml": v4spec["a_ml"], "features": v4spec["features"],
+                "shape": m.group(1), "m_max": float(m.group(2)), "b_quad": float(m.group(3))}
     json.dump(reg, open(REG_PATH, "w"), indent=2)
     return reg
+
+
+def load_candidates_with_feats(df) -> dict:
+    """Return {name: (strategy_function, feature_frame)} where every candidate is paired with
+    the feature frame built under ITS OWN configuration. Scoring an ML candidate against a
+    frame that lacks its signal column silently degenerates it to uniform pacing, so any
+    harness that scores candidates must use this, never a single shared frame."""
+    from model.ml import MLConfig, build_ml_features
+    from model.strategy import construct_features
+    reg = json.load(open(REG_PATH))
+    fns = load_candidates()
+    out = {}
+    for name, spec in reg.items():
+        if spec["type"] == "ml":
+            cfg = MLConfig(model=spec["model"], horizon=int(spec["horizon"]), a_ml=float(spec["a_ml"]),
+                           features=tuple(spec["features"]), m_max=float(spec.get("m_max", 5.0)),
+                           shape=str(spec.get("shape", "pace")), b_quad=float(spec.get("b_quad", 0.0)))
+            out[name] = (fns[name], build_ml_features(df, cfg))
+        elif spec["type"] == "blend":
+            out[name] = (fns[name], construct_features(df, Params(**spec["v1_params"])))
+        else:
+            out[name] = (fns[name], construct_features(df, Params(**spec["params"])))
+    return out
 
 
 def load_candidates() -> dict:
@@ -65,7 +94,8 @@ def load_candidates() -> dict:
         elif spec["type"] == "ml":
             from model.ml import MLConfig, make_ml_strategy
             cfg = MLConfig(model=spec["model"], horizon=int(spec["horizon"]), a_ml=float(spec["a_ml"]),
-                           features=tuple(spec["features"]), m_max=float(spec.get("m_max", 5.0)))
+                           features=tuple(spec["features"]), m_max=float(spec.get("m_max", 5.0)),
+                           shape=str(spec.get("shape", "pace")), b_quad=float(spec.get("b_quad", 0.0)))
             out[name] = make_ml_strategy(cfg)
         elif spec["type"] == "blend":
             f1 = make_strategy(Params(**spec["v1_params"]))

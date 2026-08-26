@@ -1,0 +1,69 @@
+{
+  "registration": "D26",
+  "best_label": "weight blend alpha_v4=0.75",
+  "dev_metrics": {
+    "win_rate": 93.07424015944196,
+    "mean_pct": 48.90531889994759,
+    "rw_spd_pct": 65.15796055680667,
+    "selection_metric": 70.98977952969477
+  },
+  "baseline_name": "round 6 winner (shape=pace m_max=12.0 b=0.0)",
+  "baseline_value": 73.12480339564198,
+  "beats_baseline": false,
+  "data_last_day": "2026-08-24",
+  "fingerprint": "197abe7ad6621a6a",
+  "holdout": {
+    "windows": 420.0,
+    "win_rate": 49.76190476190476,
+    "rw_spd_pct": 62.17819967742684,
+    "score": 55.9700522196658,
+    "mean_pct": 38.077986521102595,
+    "uniform_rw_spd_pct": 48.610267551450406,
+    "mean_excess": 2.265602939429179,
+    "min_excess": -8.719418953772397,
+    "regime": "H",
+    "start": "2024-07-01",
+    "end": "2026-08-24"
+  },
+  "regime_A": {
+    "windows": 2557.0,
+    "win_rate": 84.70864294094642,
+    "rw_spd_pct": 36.815504562139004,
+    "score": 60.762073751542715,
+    "mean_pct": 47.49735644929028,
+    "uniform_rw_spd_pct": 38.15444104587961,
+    "mean_excess": 8.796827729924328,
+    "min_excess": -8.719418953772397,
+    "regime": "A",
+    "start": "2018-01-01",
+    "end": "2025-12-31"
+  },
+  "regime_B": {
+    "windows": 2793.0,
+    "win_rate": 85.03401360544217,
+    "rw_spd_pct": 62.178199677426846,
+    "score": 73.60610664143451,
+    "mean_pct": 47.42126431669424,
+    "uniform_rw_spd_pct": 48.61026755145039,
+    "mean_excess": 8.809296566039043,
+    "min_excess": -8.719418953772397,
+    "regime": "B",
+    "start": "2018-01-01",
+    "end": "2026-08-24"
+  },
+  "regime_C": {
+    "windows": 3075.0,
+    "win_rate": 84.48780487804878,
+    "rw_spd_pct": 34.6332422659705,
+    "score": 59.56052357200964,
+    "mean_pct": 47.98652841576501,
+    "uniform_rw_spd_pct": 41.993673818882655,
+    "mean_excess": 8.645186163699037,
+    "min_excess": -10.50388414512684,
+    "regime": "C",
+    "start": "2016-01-01",
+    "end": "2025-06-01"
+  },
+  "probe_passed": true,
+  "constraints_passed": true
+}

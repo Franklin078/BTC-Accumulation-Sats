@@ -1,0 +1,121 @@
+2026-08-26 18:07:30 INFO     Loading CoinMetrics BTC data from local file: D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\data\Coin Metrics\coinmetrics_btc.csv
+2026-08-26 18:07:30 INFO     Loaded CoinMetrics data: 5882 rows, 2010-07-18 to 2026-08-24
+[ 1/12] shape=pace m_max=5.0 b=0.0 -> sel 71.14 (win 92.23, meanpct 50.06) (3s)
+[ 2/12] shape=pace m_max=5.0 b=0.3 -> sel 71.18 (win 92.08, meanpct 50.29) (6s)
+[ 3/12] shape=pace m_max=8.0 b=0.0 -> sel 72.49 (win 93.12, meanpct 51.86) (9s)
+[ 4/12] shape=pace m_max=8.0 b=0.3 -> sel 72.33 (win 92.38, meanpct 52.29) (13s)
+[ 5/12] shape=pace m_max=12.0 b=0.0 -> sel 73.12 (win 93.47, meanpct 52.78) (16s)
+[ 6/12] shape=pace m_max=12.0 b=0.3 -> sel 73.07 (win 92.63, meanpct 53.52) (19s)
+[ 7/12] shape=tailpay m_max=5.0 b=0.0 -> sel 61.05 (win 72.99, meanpct 49.11) (24s)
+[ 8/12] shape=tailpay m_max=5.0 b=0.3 -> sel 61.11 (win 72.94, meanpct 49.27) (30s)
+[ 9/12] shape=tailpay m_max=8.0 b=0.0 -> sel 61.63 (win 73.29, meanpct 49.97) (36s)
+[10/12] shape=tailpay m_max=8.0 b=0.3 -> sel 61.55 (win 72.99, meanpct 50.10) (41s)
+[11/12] shape=tailpay m_max=12.0 b=0.0 -> sel 61.78 (win 73.39, meanpct 50.17) (47s)
+[12/12] shape=tailpay m_max=12.0 b=0.3 -> sel 61.72 (win 73.04, meanpct 50.39) (52s)
+running the tournament forward-leakage probe on the winner...
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\roundutil.py:83: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/round6_result.json' mode='w' encoding='cp1252'>
+  json.dump(result, open(f"output/{out_prefix}_result.json", "w"), indent=2, default=float)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\roundutil.py:85: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/round6_report.txt' mode='w' encoding='utf-8'>
+  open(f"output/{out_prefix}_report.txt", "w", encoding="utf-8").write(report)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\candidates.py:60: ResourceWarning: unclosed file <_io.TextIOWrapper name='model/candidates.json' mode='r' encoding='cp1252'>
+  reg = json.load(open(REG_PATH))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\select_rounds6to9.py:64: ResourceWarning: unclosed file <_io.TextIOWrapper name='model/candidates.json' mode='r' encoding='cp1252'>
+  v3_params = _P(**json.load(open("model/candidates.json"))["Candidate v3 (refined MVRV + netflow, round 3b)"]["params"])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+ROUND 6 (allocator shape): 12 configurations, single pass
+best: shape=pace m_max=12.0 b=0.0 -> dev selection 73.12
+baseline (candidate v4): 71.14 -> BEATS the baseline
+best config hold-out: win 49.29  RW 65.47  score 57.38
+best config regime A: win 85.49  RW 35.75  score 60.62
+best config regime B: win 85.68  RW 65.47  score 75.57
+best config regime C: win 85.53  RW 35.11  score 60.32
+gates: probe PASS (0/51), constraints PASS
+[ 1/7] weight blend alpha_v4=0.25 -> sel 66.78 (win 86.95, meanpct 46.60) (12s)
+[ 2/7] weight blend alpha_v4=0.5 -> sel 70.12 (win 92.48, meanpct 47.75) (23s)
+[ 3/7] weight blend alpha_v4=0.75 -> sel 70.99 (win 93.07, meanpct 48.91) (35s)
+[ 4/7] prediction average a=1.0 -> sel 62.17 (win 77.58, meanpct 46.75) (38s)
+[ 5/7] stacking a=1.0 -> sel 56.60 (win 70.25, meanpct 42.95) (41s)
+[ 6/7] prediction average a=2.0 -> sel 66.27 (win 82.31, meanpct 50.23) (44s)
+[ 7/7] stacking a=2.0 -> sel 57.85 (win 69.86, meanpct 45.85) (47s)
+running the tournament forward-leakage probe on the winner...
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\roundutil.py:83: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/round7_result.json' mode='w' encoding='cp1252'>
+  json.dump(result, open(f"output/{out_prefix}_result.json", "w"), indent=2, default=float)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\roundutil.py:85: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/round7_report.txt' mode='w' encoding='utf-8'>
+  open(f"output/{out_prefix}_report.txt", "w", encoding="utf-8").write(report)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+ROUND 7 (ensembles): 7 configurations, single pass
+best: weight blend alpha_v4=0.75 -> dev selection 70.99
+baseline (round 6 winner (shape=pace m_max=12.0 b=0.0)): 73.12 -> DOES NOT BEAT the baseline (negative result)
+best config hold-out: win 49.76  RW 62.18  score 55.97
+best config regime A: win 84.71  RW 36.82  score 60.76
+best config regime B: win 85.03  RW 62.18  score 73.61
+best config regime C: win 84.49  RW 34.63  score 59.56
+gates: probe PASS (0/51), constraints PASS
+[ 1/16] quantile-25 target a=1.0 -> sel 55.56 (win 68.21, meanpct 42.91) (3s)
+[ 2/16] classifier target a=1.0 -> sel 63.77 (win 80.17, meanpct 47.37) (6s)
+[ 3/16] quantile-25 target a=2.0 -> sel 61.21 (win 76.98, meanpct 45.43) (9s)
+[ 4/16] classifier target a=2.0 -> sel 65.19 (win 78.33, meanpct 52.06) (12s)
+[ 5/16] class=rf a=2.0 -> sel 66.92 (win 84.90, meanpct 48.94) (15s)
+[ 6/16] class=enet a=2.0 -> sel 55.09 (win 63.28, meanpct 46.90) (18s)
+[ 7/16] class=mlp a=2.0 -> sel 69.17 (win 90.73, meanpct 47.60) (21s)
+[ 8/16] class=krr top5 a=2.0 -> sel 55.64 (win 65.82, meanpct 45.46) (24s)
+[ 9/16] hgbr depth=2 lr=0.03 -> sel 68.21 (win 85.90, meanpct 50.51) (27s)
+[10/16] hgbr depth=2 lr=0.05 -> sel 71.12 (win 92.18, meanpct 50.07) (30s)
+[11/16] hgbr depth=2 lr=0.1 -> sel 72.64 (win 94.67, meanpct 50.60) (33s)
+[12/16] hgbr depth=3 lr=0.03 -> sel 72.24 (win 94.37, meanpct 50.11) (36s)
+[13/16] hgbr depth=3 lr=0.1 -> sel 71.11 (win 92.53, meanpct 49.69) (39s)
+[14/16] hgbr depth=4 lr=0.03 -> sel 70.29 (win 91.08, meanpct 49.49) (42s)
+[15/16] hgbr depth=4 lr=0.05 -> sel 69.31 (win 89.94, meanpct 48.68) (45s)
+[16/16] hgbr depth=4 lr=0.1 -> sel 70.82 (win 92.68, meanpct 48.96) (48s)
+running the tournament forward-leakage probe on the winner...
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\roundutil.py:83: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/round8_result.json' mode='w' encoding='cp1252'>
+  json.dump(result, open(f"output/{out_prefix}_result.json", "w"), indent=2, default=float)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\roundutil.py:85: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/round8_report.txt' mode='w' encoding='utf-8'>
+  open(f"output/{out_prefix}_report.txt", "w", encoding="utf-8").write(report)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+ROUND 8 (ML variants): 16 configurations, single pass
+best: hgbr depth=2 lr=0.1 -> dev selection 72.64
+baseline (round 6 winner (shape=pace m_max=12.0 b=0.0)): 73.12 -> DOES NOT BEAT the baseline (negative result)
+best config hold-out: win 54.29  RW 65.34  score 59.81
+best config regime A: win 85.57  RW 37.92  score 61.75
+best config regime B: win 86.14  RW 65.34  score 75.74
+best config regime C: win 84.81  RW 27.56  score 56.19
+gates: probe PASS (0/51), constraints PASS
+round 9 priority order: ['cycle_pos', 'exch_share_chg', 'fee_mom', 'fg_z', 'hash_mom', 'adr_mom', 'netflow_z', 'roi_1yr', 'tx_mom', 'vol_usd_mom', 'ret_30', 'ret_90', 'hash_mom_60', 'fee_mom_60', 'ret_7', 'mvrv', 'ma_gap', 'drawdown', 'vol_30']
+[ 1/8] ridge v2-top3 a=1.0 -> sel 57.64 (win 69.46, meanpct 45.81) (3s)
+[ 2/8] ridge v2-top3 a=2.0 -> sel 58.86 (win 69.41, meanpct 48.32) (6s)
+[ 3/8] ridge v2-top5 a=1.0 -> sel 34.69 (win 29.40, meanpct 39.99) (8s)
+[ 4/8] ridge v2-top5 a=2.0 -> sel 33.61 (win 28.25, meanpct 38.96) (11s)
+[ 5/8] hgbr v2-top3 a=1.0 -> sel 65.90 (win 85.90, meanpct 45.90) (14s)
+[ 6/8] hgbr v2-top3 a=2.0 -> sel 69.41 (win 87.34, meanpct 51.47) (17s)
+[ 7/8] hgbr v2-top5 a=1.0 -> sel 45.92 (win 49.58, meanpct 42.26) (20s)
+[ 8/8] hgbr v2-top5 a=2.0 -> sel 46.98 (win 49.63, meanpct 44.33) (22s)
+running the tournament forward-leakage probe on the winner...
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\roundutil.py:83: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/round9_result.json' mode='w' encoding='cp1252'>
+  json.dump(result, open(f"output/{out_prefix}_result.json", "w"), indent=2, default=float)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\roundutil.py:85: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/round9_report.txt' mode='w' encoding='utf-8'>
+  open(f"output/{out_prefix}_report.txt", "w", encoding="utf-8").write(report)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+D:\UTS PROJECT DOCUMENTS\stacking-sats-uts\model\select_rounds6to9.py:135: ResourceWarning: unclosed file <_io.TextIOWrapper name='output/final_adjudication.json' mode='w' encoding='cp1252'>
+  json.dump(adjudication, open("output/final_adjudication.json", "w"), indent=2, default=float)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+ROUND 9 (feature expansion): 8 configurations, single pass
+best: hgbr v2-top3 a=2.0 -> dev selection 69.41
+baseline (round 6 winner (shape=pace m_max=12.0 b=0.0)): 73.12 -> DOES NOT BEAT the baseline (negative result)
+best config hold-out: win 65.48  RW 63.60  score 64.54
+best config regime A: win 82.05  RW 41.43  score 61.74
+best config regime B: win 83.57  RW 63.60  score 73.58
+best config regime C: win 80.98  RW 33.91  score 57.44
+gates: probe PASS (0/51), constraints PASS
+
+CLOSURE (D29): standing best after all rounds = round 6 winner (shape=pace m_max=12.0 b=0.0) at 73.12
