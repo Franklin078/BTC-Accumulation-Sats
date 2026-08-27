@@ -13,7 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 
 rounds = {}
-for n in (6, 7, 8, 9, 10, 11):
+for n in (6, 7, 8, 9, 10, 11, 12):
     path = f"output/round{n}_result.json"
     if os.path.exists(path):
         rounds[f"round{n}"] = (n, json.load(open(path)))

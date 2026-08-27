@@ -236,6 +236,45 @@
       "mean_excess": 15.52663515999558
     },
     {
+      "model": "Candidate v7 (refined asymmetric response, round 12)",
+      "regime": "A",
+      "start": "2018-01-01",
+      "end": "2025-12-31",
+      "windows": 2557,
+      "win_rate": 86.5858427845131,
+      "rw_spd_pct": 28.47519702064634,
+      "score": 57.53051990257973,
+      "uniform_rw_spd_pct": 38.15444104587961,
+      "mean_pct": 55.536353050889744,
+      "mean_excess": 16.835824331523792
+    },
+    {
+      "model": "Candidate v7 (refined asymmetric response, round 12)",
+      "regime": "B",
+      "start": "2018-01-01",
+      "end": "2026-08-24",
+      "windows": 2793,
+      "win_rate": 80.7375581811672,
+      "rw_spd_pct": 58.52505488498851,
+      "score": 69.63130653307786,
+      "uniform_rw_spd_pct": 48.61026755145039,
+      "mean_pct": 53.73348219277654,
+      "mean_excess": 15.12151444212134
+    },
+    {
+      "model": "Candidate v7 (refined asymmetric response, round 12)",
+      "regime": "C",
+      "start": "2016-01-01",
+      "end": "2025-06-01",
+      "windows": 3075,
+      "win_rate": 88.22764227642277,
+      "rw_spd_pct": 40.62885033978769,
+      "score": 64.42824630810523,
+      "uniform_rw_spd_pct": 41.993673818882655,
+      "mean_pct": 57.15714080963701,
+      "mean_excess": 17.815798557571043
+    },
+    {
       "model": "Uniform DCA",
       "regime": "A",
       "start": "2018-01-01",

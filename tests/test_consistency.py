@@ -64,6 +64,20 @@ def test_registry_v6_matches_round11_label():
         assert v6[k] == v5[k], k
 
 
+def test_registry_v7_matches_round12_label():
+    reg = json.load(open("model/candidates.json"))
+    r12 = _load("output/round12_result.json")
+    v7 = reg["Candidate v7 (refined asymmetric response, round 12)"]
+    m = re.fullmatch(r"R: a\+=([\d.]+) a-=([\d.]+) mmax=([\d.]+)", str(r12["best_label"]))
+    assert m, r12["best_label"]
+    assert float(v7["a_pos"]) == float(m.group(1))
+    assert float(v7["a_neg"]) == float(m.group(2))
+    assert float(v7["m_max"]) == float(m.group(3))
+    v5 = reg["Candidate v5 (v4 signal, ceiling 12, round 6)"]
+    for k in ("model", "horizon", "a_ml", "features", "shape", "b_quad"):
+        assert v7[k] == v5[k], k
+
+
 def test_round12_anchor_reproduced_v6():
     r12 = _load("output/round12_result.json")
     ac = r12.get("anchor_check")

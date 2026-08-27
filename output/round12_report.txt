@@ -1,0 +1,8 @@
+ROUND 12 (three arms): 33 configurations, single pass
+best: R: a+=5.0 a-=1.0 mmax=16.0 -> dev selection 74.80
+baseline (candidate v6): 73.41 -> BEATS the baseline
+best config hold-out: win 9.76  RW 58.53  score 34.14
+best config regime A: win 86.59  RW 28.48  score 57.53
+best config regime B: win 80.74  RW 58.53  score 69.63
+best config regime C: win 88.23  RW 40.63  score 64.43
+gates: probe PASS (0/51), constraints PASS

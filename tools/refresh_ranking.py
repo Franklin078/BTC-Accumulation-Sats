@@ -23,6 +23,7 @@ CATEGORY = {
     "Candidate v4 (feature-prioritised ML, round 5)": "machine learning",
     "Candidate v5 (v4 signal, ceiling 12, round 6)": "machine learning",
     "Candidate v6 (v5 with asymmetric response, round 11)": "machine learning",
+    "Candidate v7 (refined asymmetric response, round 12)": "machine learning",
     "Round 4 best (all-feature ridge, not a candidate)": "machine learning",
     "Round 7 best (v4/v3 blend 0.75, negative round)": "blend (ML + rules)",
     "Round 8 best (hgbr depth 2, negative round)": "machine learning",

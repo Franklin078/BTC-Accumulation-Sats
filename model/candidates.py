@@ -72,6 +72,17 @@ def build_registry() -> dict:
             # weight function is exactly candidate v5's with the asymmetric response
             reg["Candidate v6 (v5 with asymmetric response, round 11)"] = {
                 **v5spec, "a_pos": float(m.group(2)), "a_neg": float(m.group(3))}
+    if os.path.exists("output/round12_result.json"):
+        r12 = json.load(open("output/round12_result.json"))
+        if r12.get("beats_baseline"):
+            import re as _re
+            m = _re.fullmatch(r"R: a\+=([\d.]+) a-=([\d.]+) mmax=([\d.]+)", str(r12["best_label"]))
+            if m is None:
+                raise ValueError(f"unrecognised round-12 winner label: {r12['best_label']!r}")
+            v5spec = reg["Candidate v5 (v4 signal, ceiling 12, round 6)"]
+            reg["Candidate v7 (refined asymmetric response, round 12)"] = {
+                **v5spec, "m_max": float(m.group(3)),
+                "a_pos": float(m.group(1)), "a_neg": float(m.group(2))}
     json.dump(reg, open(REG_PATH, "w"), indent=2)
     return reg
 

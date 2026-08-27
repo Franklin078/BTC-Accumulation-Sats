@@ -100,5 +100,21 @@
     "b_quad": 0.0,
     "a_pos": 3.0,
     "a_neg": 1.0
+  },
+  "Candidate v7 (refined asymmetric response, round 12)": {
+    "type": "ml",
+    "model": "hgbr",
+    "horizon": 90,
+    "a_ml": 2.0,
+    "features": [
+      "hash_mom",
+      "fee_mom",
+      "cycle_pos"
+    ],
+    "shape": "pace",
+    "m_max": 16.0,
+    "b_quad": 0.0,
+    "a_pos": 5.0,
+    "a_neg": 1.0
   }
 }
