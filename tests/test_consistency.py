@@ -64,6 +64,14 @@ def test_registry_v6_matches_round11_label():
         assert v6[k] == v5[k], k
 
 
+def test_round12_anchor_reproduced_v6():
+    r12 = _load("output/round12_result.json")
+    ac = r12.get("anchor_check")
+    assert ac and ac.get("passed") is True, "round 12's anchor cell did not reproduce candidate v6"
+    r11 = _load("output/round11_result.json")
+    assert abs(float(ac["target"]) - float(r11["dev_metrics"]["selection_metric"])) < 1e-12
+
+
 def test_round_results_carry_fingerprints():
     for n in (6, 7, 8, 9, 10, 11):
         r = _load(f"output/round{n}_result.json")

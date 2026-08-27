@@ -66,6 +66,14 @@ class MLConfig:
     cond_gain: float = 0.0    # g in a_eff = a x (1 + g tanh(z_cond)); 0 disables conditioning
     cond_depth: int = 2       # tree depth of the conditioner model only; separate from
                               # hgbr_depth so conditioning an engine never alters the engine
+    phase_depth: float = 0.0  # >0: the response scales by (1 + phase_depth) during the
+                              # registered phase of the halving cycle; a pure calendar rule,
+                              # trained on nothing
+    phase_def: str = "late"   # "late": days beyond 730 after the most recent halving (the
+                              # historically cheap half); "mid": days 366 to 1095, where the
+                              # cycle feature is negative (contains both historical extremes)
+    phase_target: str = "buy" # what the phase scales: "buy" (a_pos only), "slopes" (both
+                              # slopes), or "ceiling" (m_max)
 
 
 def fetch_fear_greed(path: str = "data/fear_greed.csv") -> pd.Series:
@@ -293,10 +301,24 @@ def build_ml_features(df: pd.DataFrame, cfg: MLConfig) -> pd.DataFrame:
         cond_cfg = replace(cfg, features=tuple(cfg.cond_features), cond_features=(),
                            blocks=(), horizons=(), hgbr_depth=cfg.cond_depth)
         feats["f_cond_z"] = causal_standardise(walk_forward_predictions(df, cond_cfg), cfg.clip_ml)
+    if cfg.phase_depth > 0:
+        # the phase indicator is a pure function of each row's calendar date: 1.0 inside the
+        # registered cycle phase, 0.0 outside it and before the first halving; the depth is
+        # applied in the allocator, so both grid depths share one frame
+        dsh = np.array([(d - HALVINGS[HALVINGS <= d].max()).days if (HALVINGS <= d).any() else np.nan
+                        for d in df.index], dtype=float)
+        with np.errstate(invalid="ignore"):
+            if cfg.phase_def == "late":
+                ind = dsh > 730.5
+            elif cfg.phase_def == "mid":
+                ind = (dsh > 365.25) & (dsh < 1095.75)
+            else:
+                raise ValueError(f"unknown phase definition {cfg.phase_def!r}")
+        feats["f_phase"] = np.where(np.isfinite(dsh) & ind, 1.0, 0.0)
     return feats
 
 
-def _multiplier(z: float, cfg: MLConfig, zc: float = 0.0) -> float:
+def _multiplier(z: float, cfg: MLConfig, zc: float = 0.0, acc: float = 0.0) -> float:
     if cfg.a_pos > 0 or cfg.a_neg > 0:
         a = (cfg.a_pos if z >= 0 else cfg.a_neg) or cfg.a_ml
     else:
@@ -306,11 +328,26 @@ def _multiplier(z: float, cfg: MLConfig, zc: float = 0.0) -> float:
         # direction; with the gain at most 0.5 the effective strength stays within half to
         # one-and-a-half times the base, and the ceiling and floor still apply after it
         a = a * (1.0 + cfg.cond_gain * float(np.tanh(zc)))
+    m_max = cfg.m_max
+    if cfg.phase_depth > 0 and acc > 0.0:
+        # calendar-phase scaling: acc is the day's 0/1 phase indicator from the frame; the
+        # scaled quantity is the registered target and nothing else
+        ph = 1.0 + cfg.phase_depth * acc
+        if cfg.phase_target == "slopes":
+            a = a * ph
+        elif cfg.phase_target == "buy":
+            if z >= 0:
+                a = a * ph
+        elif cfg.phase_target == "ceiling":
+            m_max = m_max * ph
+        else:
+            raise ValueError(f"unknown phase target {cfg.phase_target!r}")
     log_m = a * z + cfg.b_quad * z * abs(z)
-    return min(max(float(np.exp(log_m)), cfg.m_min), cfg.m_max)
+    return min(max(float(np.exp(log_m)), cfg.m_min), m_max)
 
 
-def _allocate_pace(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None) -> np.ndarray:
+def _allocate_pace(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None,
+                   acc: np.ndarray = None) -> np.ndarray:
     """Remaining-budget pacing: each day spends the even pace of what is left, scaled by m."""
     n = len(z)
     w = np.empty(n)
@@ -322,7 +359,8 @@ def _allocate_pace(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None) -> np.nd
             w[i] = remaining
             break
         zci = zc[i] if zc is not None and np.isfinite(zc[i]) else 0.0
-        m = _multiplier(z[i] if np.isfinite(z[i]) else 0.0, cfg, zci)
+        acci = acc[i] if acc is not None and np.isfinite(acc[i]) else 0.0
+        m = _multiplier(z[i] if np.isfinite(z[i]) else 0.0, cfg, zci, acci)
         pace = remaining / days_left
         cap = remaining - (days_left - 1) * floor
         wi = min(max(pace * m, floor), cap)
@@ -331,7 +369,8 @@ def _allocate_pace(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None) -> np.nd
     return w
 
 
-def _allocate_tailpay(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None) -> np.ndarray:
+def _allocate_tailpay(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None,
+                      acc: np.ndarray = None) -> np.ndarray:
     """Reference-style shape: start uniform; a boosted day is paid for by equally reducing the
     days in the window's second half that have not yet been reached. Only future days are ever
     reduced, so the shape is causal; if the tail cannot fund a boost, the boost is skipped."""
@@ -342,7 +381,8 @@ def _allocate_tailpay(z: np.ndarray, cfg: MLConfig, zc: np.ndarray = None) -> np
     tail_start = n // 2
     for i in range(n):
         zci = zc[i] if zc is not None and np.isfinite(zc[i]) else 0.0
-        m = _multiplier(z[i] if np.isfinite(z[i]) else 0.0, cfg, zci)
+        acci = acc[i] if acc is not None and np.isfinite(acc[i]) else 0.0
+        m = _multiplier(z[i] if np.isfinite(z[i]) else 0.0, cfg, zci, acci)
         if m <= 1.0:
             continue
         desired = w[i] * m
@@ -378,7 +418,16 @@ def make_ml_strategy(cfg: MLConfig):
                 raise ValueError("conditioned strategy given a frame without f_cond_z; build "
                                  "the frame with build_ml_features under this configuration")
             zc = f["f_cond_z"].to_numpy(float)
-        w = _allocate_pace(z, cfg, zc) if cfg.shape == "pace" else _allocate_tailpay(z, cfg, zc)
+        acc = None
+        if cfg.phase_depth > 0:
+            if "f_phase" not in f.columns:
+                # a phase-modulated strategy scored against a frame without its phase column
+                # would silently fall back to the unmodulated model; refuse, as with f_cond_z
+                raise ValueError("phase-modulated strategy given a frame without f_phase; "
+                                 "build the frame with build_ml_features under this configuration")
+            acc = f["f_phase"].to_numpy(float)
+        w = (_allocate_pace(z, cfg, zc, acc) if cfg.shape == "pace"
+             else _allocate_tailpay(z, cfg, zc, acc))
         return pd.Series(w, index=df_window.index)
     fn.cfg = cfg
     return fn
