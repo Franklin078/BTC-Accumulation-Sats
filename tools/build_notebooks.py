@@ -230,7 +230,7 @@ for name, spec in reg.items():
 
 # ------------------------------------------------------------------ 05 validation
 write(nb([
-    ("md", "## What this notebook does\nIt runs every validation gate from instruction set v2, Part F, on the frozen model and writes `output/validation_report.json`. If any gate fails, nothing from this model may be reported."),
+    ("md", "## What this notebook does\nIt runs every validation gate on the frozen model and writes `output/validation_report.json`: the upstream submission check, the forward-leakage probe on all three regimes, the per-window constraint checks, the boilerplate hash check, and the determinism comparison. If any gate fails, nothing from this model may be reported."),
     ("code", PATHFIX), ("code", VERSIONS),
     ("code", '''import json, pandas as pd, numpy as np
 from model.regimes import load_btc, REGIMES, forward_leakage_probe, constraint_check
