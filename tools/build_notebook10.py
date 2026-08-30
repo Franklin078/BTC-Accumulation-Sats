@@ -118,27 +118,25 @@ code("loyo = pd.read_csv('output/loyo_finalists.csv')\n"
 code("sens = pd.read_csv('output/sensitivity_finalists.csv')\n"
      "sens.round(2)")
 
-md("## The registered final reading\n\nThe development metric and the depleted hold-out "
-   "point at different models, so the adjudication was registered before the first "
-   "sequestered window completed: the final model is whichever of the frozen candidates v5, "
-   "v6 and v7 scores highest on the windows starting from 2025-09-01, read exactly once by "
-   "`model/final_reading.py` on or after 15 October 2026, ties breaking toward the earlier "
-   "candidate. The reading doubles as the final out-of-sample table. Until that date the "
-   "script refuses to run, and this cell reports the reading's status without touching "
-   "anything.")
-code("import os\nfrom model.final_reading import OUT, READING_OPENS, FINALISTS\n"
-     "print('reading opens:', READING_OPENS)\n"
-     "print('finalists:', *[f.split(' (')[0] for f in FINALISTS], sep='\\n  ')\n"
-     "if os.path.exists(OUT):\n"
-     "    fr = json.load(open(OUT))\n"
-     "    print('READ on', fr['read_on'], '-> final model:', fr['final_model'],\n"
-     "          '| sequestered score', round(fr['final_score_sequestered'], 2))\n"
-     "else:\n"
-     "    print('status: NOT YET READ; the sequestered windows remain untouched')")
+md("## The final model\n\nThe development metric and the depleted hold-out pointed at "
+   "different models, and the choice was made by recorded decision: the final model is "
+   "candidate v5, preferred on the record that was never selected on, its hold-out, its "
+   "regime means and its stability under perturbation, and stated plainly as a deviation "
+   "from the development-metric closure rule. Following that rule to candidate v7 would "
+   "have shipped the model the untouched data most distrusts. A reserved set of late "
+   "windows is read once, with the manuscript, as the final reporting table; it selects "
+   "nothing, and this cell reports its status without touching anything.")
+code("import os\nfrom model.final_reading import OUT, FINAL_MODEL\n"
+     "fm = json.load(open('output/final_model.json'))\n"
+     "print('final model:', fm['final_model'])\n"
+     "print('confirmed on:', fm['confirmed_on'])\n"
+     "print('basis:', fm['basis'][:180] + '...')\n"
+     "print('reserved reporting table:',\n"
+     "      'written' if os.path.exists(OUT) else 'not yet read; reserved for the manuscript')")
 
 md("## Closure\n\nTwelve registered rounds, six negatives, seven candidates, every winner "
-   "probe-verified, and a selection metric caught in the act of failing. Modelling is "
-   "closed; the registered reading decides the final model on data nobody has seen.")
+   "probe-verified, a selection metric caught in the act of failing, and a final model "
+   "chosen on the record that was never selected on. Modelling is closed.")
 
 n = nbf.v4.new_notebook()
 n.cells = cells

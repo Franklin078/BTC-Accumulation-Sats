@@ -78,6 +78,16 @@ def test_registry_v7_matches_round12_label():
         assert v7[k] == v5[k], k
 
 
+def test_final_model_recorded_and_consistent():
+    fm = _load("output/final_model.json")
+    reg = json.load(open("model/candidates.json"))
+    assert fm["final_model"] in reg, "final model must be a registered candidate"
+    ranking = pd.read_csv("output/model_ranking.csv", index_col=0).set_index("model")
+    assert ranking.loc[fm["final_model"], "category"] == fm["category"]
+    for k in "ABC":
+        assert abs(float(ranking.loc[fm["final_model"], f"score_{k}"]) - float(fm["scores"][f"regime_{k}"])) < 0.01
+
+
 def test_round12_anchor_reproduced_v6():
     r12 = _load("output/round12_result.json")
     ac = r12.get("anchor_check")

@@ -1,0 +1,15 @@
+{
+  "final_model": "Candidate v5 (v4 signal, ceiling 12, round 6)",
+  "category": "machine learning",
+  "confirmed_on": "2026-08-30",
+  "basis": "Recorded decision: candidate v5 is preferred on the out-of-development record (hold-out score 57.38 against 52.12 and 34.14 for candidates v6 and v7; three-regime mean 65.50, first on the descriptive ranking; stable under every measured parameter perturbation) over the development-metric margins of its successors, whose gains came with measured out-of-development losses. This weights reported hold-out readings and is disclosed as a deviation from the development-metric closure rule rather than hidden behind it.",
+  "scores": {
+    "development_selection": {"sklearn_1.9.0": 73.12, "sklearn_1.4.2": 72.56},
+    "holdout_score": {"sklearn_1.9.0": 57.38, "sklearn_1.4.2": 57.80},
+    "regime_A": 60.62,
+    "regime_B": 75.57,
+    "regime_C": 60.32,
+    "mean_ABC": 65.50
+  },
+  "configuration": "HistGradientBoosting on hash-rate momentum, fee momentum and cycle position, horizon 90, multiplier strength 2, pace allocator, ceiling 12 (model/candidates.json)"
+}

@@ -39,18 +39,28 @@ set read twelve times still constrains, but it no longer certifies; the collapse
 above is visible only because these readings were recorded rather than averaged away. This is
 stated wherever hold-out numbers appear.
 
-## The sequestered windows (registered final adjudication)
+## The final model, and how it was chosen
+
+The final model is candidate v5, confirmed by recorded decision on 30 August 2026. The basis
+is disclosed in full: v5 is preferred on the out-of-development record (hold-out 57.38
+against 52.12 and 34.14 for its successors; three-regime mean 65.50, first on the descriptive
+ranking; stable under every measured perturbation) over the development-metric margins of
+candidates v6 and v7, whose gains came with the measured losses documented above. This
+weights reported hold-out readings, so it is stated as a deviation from the
+development-metric closure rule rather than hidden behind it; the alternative, following that
+rule to candidate v7, would have shipped the model the untouched data most distrusts. An
+adjudication-by-reading rule registered on 30 August was superseded the same day by this
+confirmation, before any of the windows it would have read had completed, so it decided
+nothing.
+
+## The reserved windows (one-time final reporting)
 
 Windows starting on or after 2025-09-01 complete only from September 2026 onward, and no
-selection decision has ever seen any part of their outcomes scored. Before the first of them
-completed, the final adjudication rule was registered in writing: the final model is whichever
-of the three frozen finalists (candidates v5, v6 and v7) holds the highest Final Model Score
-on the sequestered windows, ties breaking toward the earlier candidate, read exactly once by
-`model/final_reading.py` on the first scoring session on or after 15 October 2026. That
-reading doubles as the manuscript's final out-of-sample table. The script refuses to run
-before the registered date and refuses to run twice, and `model/regimes.py` warns if any other
-scoring run touches these windows. Because the rule was fixed on data nobody had seen, the
-reading adjudicates without becoming a selection set.
+selection decision has ever seen any part of their outcomes scored. They are reserved for
+exactly one reading, made with the manuscript, as the final out-of-sample table reporting the
+final model with the other finalists beside it. `model/final_reading.py` performs that
+reading, refuses to run before any reserved window has completed, refuses to run twice, and
+selects nothing; `model/regimes.py` warns if any other scoring run touches these windows.
 
 ## Environment sensitivity of the learner
 

@@ -27,7 +27,7 @@ The Trilemma tournament code is the base and stays untouched; everything on top 
 
 ## Status
 
-The modelling phase is complete: twelve pre-registered selection rounds, closed under the registered rules, with every grid, result and negative kept in `output/`. The final model is decided by a one-time reading of sequestered evaluation windows under a rule registered before any of those windows completed (`model/final_reading.py`, on or after 15 October 2026); until that reading, the three frozen finalists are presented together and nothing here presupposes the winner. The write-up is in progress; numbers shown in the notebooks are the committed working record of the study as it stands.
+The study is complete. The final model is candidate v5 (a HistGradientBoosting learner on hash-rate momentum, fee momentum and cycle position, mapped to daily weights by a paced allocator with ceiling 12), confirmed by recorded decision on the out-of-development record and stated with its basis in `output/final_model.json` and the decision log. Selection ran as twelve pre-registered rounds with every grid, result and negative kept in `output/`; the two later candidates that beat v5 on the development metric, and the measured reasons they were not chosen, are reported beside it throughout. A reserved set of late evaluation windows is read once, with the manuscript, as the final out-of-sample table (`model/final_reading.py`); it reports and selects nothing.
 
 ## Repository map
 
