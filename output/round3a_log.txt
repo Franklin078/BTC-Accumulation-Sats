@@ -1,9 +1,0 @@
-alpha 0.25: dev win 72.75  mean pct 44.69  selection 58.72
-alpha 0.50: dev win 71.70  mean pct 44.75  selection 58.22
-alpha 0.75: dev win 71.80  mean pct 44.80  selection 58.30
-
-ROUND 3A: blends of v1 and v2, alphas [0.25, 0.5, 0.75]
-alpha 0.25: dev win 72.75  mean pct 44.69  selection 58.72
-alpha 0.50: dev win 71.70  mean pct 44.75  selection 58.22
-alpha 0.75: dev win 71.80  mean pct 44.80  selection 58.30
-baseline (candidate v2): 61.31 -> best blend DOES NOT BEAT v2 (negative result; v2 stands)

@@ -27,7 +27,7 @@ The Trilemma tournament code is the base and stays untouched; everything on top 
 
 ## Status
 
-Work in progress. The study is ongoing and results will be published here when it concludes. Interim numbers produced along the way are working artefacts, not findings.
+The modelling phase is complete: twelve pre-registered selection rounds, closed under the registered rules, with every grid, result and negative kept in `output/`. The final model is decided by a one-time reading of sequestered evaluation windows under a rule registered before any of those windows completed (`model/final_reading.py`, on or after 15 October 2026); until that reading, the three frozen finalists are presented together and nothing here presupposes the winner. The write-up is in progress; numbers shown in the notebooks are the committed working record of the study as it stands.
 
 ## Repository map
 
