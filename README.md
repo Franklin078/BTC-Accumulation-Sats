@@ -21,7 +21,7 @@ The Trilemma tournament code is the base and stays untouched; everything on top 
 | Data | CoinMetrics community daily series, refreshed to the last complete day by `notebooks/01_data.ipynb`, with `PriceUSD` as the only price used for scoring. An integrity gate (no missing days, no null prices, no duplicates) runs before any scoring session. | CoinMetrics is the tournament's own source. The refreshed series matches the frozen 2025 tournament dataset to machine precision on every overlapping day, which the data notebook verifies on each run. |
 | Causality | Every feature is lagged one day: the weight for day t is fixed from information available at the close of day t-1. | A daily accumulation schedule has to be executable in real time. The one-day lag makes that property structural rather than something to argue about. |
 | Weight constraints | Remaining-budget pacing: each day's weight is the even pace of the remaining budget scaled by a bounded multiplier, and the final day takes the remainder. | The tournament requires every weight to stay above a minimum and each window's weights to sum to one. Pacing satisfies both by construction, with no rescaling step after the fact. |
-| Model form | A small number of named features with stated signs, combined in a bounded multiplier. Only numpy and pandas inside model code. | The tournament judges interpretability alongside score, and the pinned evaluation environment is minimal. A rule that fits in four sentences is also a rule an examiner can interrogate. |
+| Model form | Two tracks. The tournament-format track is a small number of named features with stated signs in a bounded multiplier, numpy and pandas only. The study's primary track adds one causally trained learner signal (scikit-learn, which the pinned environment provides), produced by purged walk-forward training and standardised against its own past only. | The tournament judges interpretability alongside score, and its 3-cell format forbids new imports, so the strict artefact stays simple. The learner track exists because the registered rounds showed usage and calendar signals out-forecast hand-set rules; its causality is enforced by the same probe. |
 | Selection | Parameters are chosen on a pre-registered grid over an early development period, separated from later data by a 12-month embargo, and held fixed once chosen. Each round of modelling is registered before it is run; the grid files are kept with the results. | Rolling windows overlap by up to a year, so naive train and test splits leak. Registering the search before running it is what makes a reported number mean what it appears to mean. |
 | Validation | Before any configuration is reported: the tournament's own submission check, its forward-leakage probe (future rows masked, weights must not change), per-window constraint checks, and the hash check on the submission notebook. | These are the checks the tournament's evaluation engine runs. Passing them locally is a precondition for calling anything a result. |
 
@@ -40,18 +40,31 @@ BTC-Accumulation-Sats/
     strategy.py              features, the allocation rule, template-compatible entry points
     regimes.py               the three scoring configurations; calls the Trilemma engine;
                              leakage probe and constraint checks
-    select.py                the pre-registered selection protocol
+    ml.py                    the causal learner pipeline (purged walk-forward, causal
+                             standardisation, committee and allocator variants)
+    candidates.py            the registry of candidates the registered rounds produced
+    select*.py               one script per registered round, kept exactly as registered
+    roundutil.py             the shared round runner (fixed protocol, fingerprinted cache)
+    robustness.py            leave-one-year-out and parameter sensitivity for the finalists
+    final_reading.py         the registered one-time reading of the sequestered windows
     reference_2025.py        the 2025 reference strategy, kept for benchmarking
   notebooks/                 01 data, 02 exploratory analysis, 03 features,
-                             04 model selection, 05 validation, 06 results
-  deliverables/              the educational notebook (drafted; completed at study end)
+                             04 model selection, 05 validation, 06 results,
+                             07 causal learner, 08 feature priority and ranking,
+                             09 rounds 6 to 9, 10 rounds 10 to 12
+  deliverables/              the educational notebook (completed as the study concludes)
   data/Coin Metrics/         frozen CoinMetrics CSV (provider terms apply)
   data/official_2025/        frozen 2025 tournament dataset (benchmark only)
-  output/                    charts and working artefacts
-  docs/                      upstream file hashes and the decision log
-  tests/                     constraint, causality and reproduction tests
-  tools/                     notebook builder
+  output/                    grids, results, reports and charts for every round, losers
+                             included, plus the descriptive ranking and validation report
+  docs/                      upstream hashes, decision log, environments, methodology notes,
+                             exploratory findings, data licensing notes
+  tests/                     constraint, causality, reproduction and consistency tests
+  tools/                     notebook builder, ranking and adjudication refreshers, gates
 ```
+
+The directory name on disk may differ from the repository name above; the repository is the
+same either way.
 
 ## Reproduce
 
@@ -59,7 +72,7 @@ BTC-Accumulation-Sats/
 python -m venv venv && venv\Scripts\activate          # Windows; use source venv/bin/activate elsewhere
 pip install -r requirements.txt
 python -m pytest tests -q
-jupyter lab                                            # run notebooks 01 to 06 in order
+jupyter lab                                            # run notebooks 01 to 10 in order
 ```
 
 The tournament-format check uses a second environment built from `tournament_2025/requirements_tournament_py310.txt` on Python 3.10, in which `tournament_2025/btc_accumulation_model.ipynb` runs top to bottom and `hasher.py` confirms the boilerplate cells are identical to the template.

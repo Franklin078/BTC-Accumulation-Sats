@@ -6,39 +6,62 @@ describe.
 
 ## Sequential rounds and what they cost
 
-Model selection ran as nine registered rounds. Within each round the discipline is strict: the
-grid is written down before it runs, runs once, and is saved in full, losers included. Across
-rounds, however, each design was written knowing what the previous rounds found. That sequence
-is a form of multiple testing that no single round's registration accounts for, and it is the
-reason the development metric of the final model (73.12) should be read as the outcome of a
-guided search, not as an unbiased estimate of skill. The honest quantities to weight most are
-the untouched hold-out and, once available, the sequestered windows described below. With
+Model selection ran as twelve registered rounds. Within each round the discipline is strict:
+the grid is written down before it runs, runs once, and is saved in full, losers included.
+Across rounds, however, each design was written knowing what the previous rounds found. That
+sequence is a form of multiple testing that no single round's registration accounts for, and
+it is the reason the best development metric on record (74.80, the round 12 winner) should be
+read as the outcome of a guided search, not as an unbiased estimate of skill. The honest
+quantities to weight most are the untouched sequestered windows described below. With
 hindsight, fewer and larger rounds would have bought the same coverage with a shorter forking
 path; the manuscript says so.
+
+## The development gradient, measured
+
+The last three generations of winners document what sequential refinement does to a selection
+metric. Candidate v5 scored 73.12 on the development selection metric and 57.38 on the
+hold-out; candidate v6 scored 73.41 and 52.12; candidate v7 scored 74.80 and 34.14, a hold-out
+win rate of 9.76 per cent. Every point gained on the development metric after round 6 was paid
+for out of the hold-out, the ordering inverts on every out-of-development measure, and the
+pattern replicates exactly in the pinned tournament environment, so it is not a version
+artefact. Two supporting observations: the round 12 winner sits on the boundary of its widened
+grid in both directions, and one grid step away the metric falls by five points. The
+refinement line was terminated on this evidence, and the study's conclusion is that the
+development metric was exhausted as a selection signal, with its marginal gains
+anti-correlated with generalisation. The three finalists are presented together wherever any
+one of them appears.
 
 ## Hold-out depletion
 
 The hold-out (window starts from 2024-07-01) was never used to select anything, but the winner
-of every round was scored on it and the numbers were read: nine readings in total. A test set
-read nine times still constrains, but it no longer certifies. This is stated wherever hold-out
-numbers appear.
+of every round was scored on it and the numbers were read: twelve readings in total. A test
+set read twelve times still constrains, but it no longer certifies; the collapse documented
+above is visible only because these readings were recorded rather than averaged away. This is
+stated wherever hold-out numbers appear.
 
-## The sequestered windows (one-time final reading)
+## The sequestered windows (registered final adjudication)
 
-Windows starting on or after 2025-09-01 complete only after the modelling closure of
-26 August 2026, and no selection decision has ever seen any part of their outcomes scored.
-They are sequestered: scored exactly once, at manuscript time, for the final out-of-sample
-table, and never before. `model/regimes.py` warns if any scoring run touches them earlier.
-This is the study's only remaining fully clean test, and it stays that way by not being looked
-at.
+Windows starting on or after 2025-09-01 complete only from September 2026 onward, and no
+selection decision has ever seen any part of their outcomes scored. Before the first of them
+completed, the final adjudication rule was registered in writing: the final model is whichever
+of the three frozen finalists (candidates v5, v6 and v7) holds the highest Final Model Score
+on the sequestered windows, ties breaking toward the earlier candidate, read exactly once by
+`model/final_reading.py` on the first scoring session on or after 15 October 2026. That
+reading doubles as the manuscript's final out-of-sample table. The script refuses to run
+before the registered date and refuses to run twice, and `model/regimes.py` warns if any other
+scoring run touches these windows. Because the rule was fixed on data nobody had seen, the
+reading adjudicates without becoming a selection set.
 
 ## Environment sensitivity of the learner
 
-The final model's numbers depend measurably on the scikit-learn version: development selection
-73.12 and hold-out 57.38 under scikit-learn 1.9.0; 72.56 and 57.80 under the tournament's
-pinned 1.4.2. The adjudication is unchanged in both environments, but every learner-based
-number in this project is version-tagged, and the rule-based candidates, which reproduce to
-the second decimal across environments, are reported alongside for exactly this reason.
+Learner-based numbers depend measurably on the scikit-learn version. Development selection and
+hold-out for the finalists: candidate v5, 73.12 and 57.38 under scikit-learn 1.9.0 against
+72.56 and 57.80 under the tournament's pinned 1.4.2; candidate v6, 73.41 and 52.12 against
+72.84 and 53.08; candidate v7, 74.80 and 34.14 against 74.03 and 35.61. The orderings, both
+the development ordering and its hold-out inversion, are identical in both environments. Every
+learner-based number in this project is version-tagged, and the rule-based candidates, which
+reproduce to the second decimal across environments, are reported alongside for exactly this
+reason.
 
 ## Tournament-format compliance and the dual track
 
@@ -66,3 +89,14 @@ Round results are cached with a fingerprint of the configuration list and the da
 result is reused only when the fingerprint matches, and its baseline comparison is recomputed
 against the baseline of the current run. This closes the gap in which a result computed by an
 earlier version of the code could silently survive a code change.
+
+## Anchor cells
+
+Every reopened round after the tenth carried an anchor: one grid cell constructed to be
+weight-identical to the standing model, whose score therefore had to reproduce the standing
+number through the round's new code path. Round 11's anchor reproduced 73.12 to four decimal
+places; round 12's reproduced 73.41 to ten, is compared at a relative tolerance of one part in
+a billion, stamps its verdict into the round's result file, and aborts the run as invalid on
+any deviation. An anchor does not prove a model is good; it proves the harness scored the old
+model identically before it scored anything new, which is the difference between a finding and
+an artefact.
