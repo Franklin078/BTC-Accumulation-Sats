@@ -1,0 +1,48 @@
+{
+  "purpose": "one-time final reporting table; the final model was confirmed by recorded decision and this reading selects nothing",
+  "final_model": "Candidate v5 (v4 signal, ceiling 12, round 6)",
+  "read_on": "2026-09-15",
+  "data_last_day": "2026-09-14",
+  "sklearn_version": "1.9.0",
+  "candidates": {
+    "Candidate v5 (v4 signal, ceiling 12, round 6)": {
+      "windows": 14.0,
+      "win_rate": 100.0,
+      "rw_spd_pct": 61.27564663596657,
+      "score": 80.63782331798328,
+      "mean_pct": 61.46016562754467,
+      "uniform_rw_spd_pct": 52.00093065402899,
+      "mean_excess": 9.650556823909042,
+      "min_excess": 8.283800680264427,
+      "regime": "S",
+      "start": "2025-09-01",
+      "end": "2026-09-14"
+    },
+    "Candidate v6 (v5 with asymmetric response, round 11)": {
+      "windows": 14.0,
+      "win_rate": 100.0,
+      "rw_spd_pct": 59.07546676228493,
+      "score": 79.53773338114246,
+      "mean_pct": 59.09287672983792,
+      "uniform_rw_spd_pct": 52.00093065402899,
+      "mean_excess": 7.283267926202286,
+      "min_excess": 6.498397411702982,
+      "regime": "S",
+      "start": "2025-09-01",
+      "end": "2026-09-14"
+    },
+    "Candidate v7 (refined asymmetric response, round 12)": {
+      "windows": 14.0,
+      "win_rate": 100.0,
+      "rw_spd_pct": 59.08205223129737,
+      "score": 79.54102611564869,
+      "mean_pct": 59.102893580206434,
+      "uniform_rw_spd_pct": 52.00093065402899,
+      "mean_excess": 7.293284776570815,
+      "min_excess": 6.4775806058918874,
+      "regime": "S",
+      "start": "2025-09-01",
+      "end": "2026-09-14"
+    }
+  }
+}
