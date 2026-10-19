@@ -24,6 +24,7 @@ Produced by tools/manuscript_support.py from the committed results and the froze
 | volatility.json | return distribution and 30-day realised volatility statistics since 2018 |
 | spearman_features.csv | signed Spearman correlation of the thirteen round-4 features with the 90-day forward log return, reproducing round 5's committed absolute values exactly |
 | mvrv_bands.csv | window starts in evaluation period B grouped by the MVRV level known at the start: uniform DCA's window percentile and the 365-day forward log return |
+| split_profile.csv | market context (prices, drawdown share) and the final model's and the reference's record on the development, embargo and hold-out windows |
 | recency_weights.json | how much of the recency-weighted percentile the most recent windows carry, for each period size |
 | sequestered_accumulation.csv | the 14 sequestered windows in accumulation terms on a $1,000,000 budget, from the committed one-time reading table |
 | sequestered_accumulation.json | the first sequestered window in dollars, BTC and prices, from the committed reading and the frozen series |

@@ -457,6 +457,32 @@ def mvrv_bands(df_close: pd.DataFrame) -> pd.DataFrame:
     return g
 
 
+def split_profile(df_close: pd.DataFrame) -> pd.DataFrame:
+    """Market context and the final model's record on each data split, from the committed
+    window tables (final model: robust_v5_B; benchmarks: the regenerated period-B tables)."""
+    def starts(t):
+        return pd.to_datetime([s.split(ARROW)[0] for s in t.index])
+    v5 = read_spd("robust_v5_B"); uni = pd.read_csv(OUT / "spd_uniform_B.csv", index_col=0); ref = pd.read_csv(OUT / "spd_reference_B.csv", index_col=0)
+    for t in (v5, uni, ref):
+        t["start"] = starts(t)
+    p = df_close["PriceUSD_coinmetrics"]
+    dd = p / p.rolling(365, min_periods=30).max() - 1
+    rows = []
+    for name, (a, b) in {"development": ("2018-01-01", "2023-06-30"), "embargo": ("2023-07-01", "2024-06-30"), "hold-out": ("2024-07-01", "2025-08-24")}.items():
+        m = (v5["start"] >= a) & (v5["start"] <= b)
+        rows.append({"split": name, "windows": int(m.sum()), "first_start": a, "last_start": b,
+                     "price_at_first_start": p.loc[a], "price_at_last_start": p.loc[b],
+                     "share_of_starts_more_than_30pct_below_365d_high": 100 * float((dd.reindex(v5.loc[m, "start"]).to_numpy() < -0.30).mean()),
+                     "uniform_mean_percentile": uni.loc[m, "uniform_percentile"].mean(),
+                     "final_model_win_rate": 100 * float((v5.loc[m, "dynamic_percentile"] > v5.loc[m, "uniform_percentile"]).mean()),
+                     "final_model_mean_percentile": v5.loc[m, "dynamic_percentile"].mean(),
+                     "reference_win_rate": 100 * float((ref.loc[m, "dynamic_percentile"] > ref.loc[m, "uniform_percentile"]).mean()),
+                     "reference_mean_percentile": ref.loc[m, "dynamic_percentile"].mean()})
+    t = pd.DataFrame(rows)
+    save_csv("split_profile.csv", t, "market context (prices, drawdown share) and the final model's and the reference's record on the development, embargo and hold-out windows")
+    return t
+
+
 def recency() -> dict:
     out = {"rho": 0.9}
     for N in (60, 420, 2007, 2557, 2793, 3075):
@@ -554,6 +580,7 @@ def main() -> None:
     sf = spearman(df_close)
     print("spearman sample:", sf["sample"].iloc[0], "n", sf["n_days"].iloc[0])
     mvrv_bands(df_close)
+    split_profile(df_close)
     recency()
     sequestered(df_full)
     dist = v5_multipliers(df_close, data_close)

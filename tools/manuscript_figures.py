@@ -150,7 +150,7 @@ def fig_feature_hist(df: pd.DataFrame) -> None:
     panels = [
         ("hash_mom", X["hash_mom"], "(a) Hash-rate momentum\n30-day / 365-day mean, minus 1"),
         ("fee_mom", X["fee_mom"], "(b) Fee momentum\n30-day / 365-day mean, minus 1"),
-        ("cycle_pos", X["cycle_pos"], "(c) Cycle position\ncos(2 pi d / 1461), d days since halving"),
+        ("cycle_pos", X["cycle_pos"], "(c) Cycle position\ncos(2 pi d / 1461)"),
         ("ma_gap", X["ma_gap"], "(d) 200-day moving-average gap\nprice / 200-day mean, minus 1"),
         ("drawdown", X["drawdown"], "(e) Drawdown\nprice / 365-day high, minus 1"),
         ("mvrv_z", base["f_mvrv_z"].clip(-3, 3), "(f) MVRV z-score, clipped at -3 and 3\n365-day rolling standardisation"),
@@ -371,7 +371,7 @@ def fig_v5_multiplier_path() -> None:
     ax.axhline(1, color=C["black"], lw=0.7)
     ax.axhline(12, color=C["grey"], lw=0.7, ls="--", label="ceiling 12 and floor 0.25")
     ax.axhline(0.25, color=C["grey"], lw=0.7, ls="--")
-    ax.axvspan(pd.Timestamp(sp["hold_out"]["first_start"]), pd.Timestamp(sp["data_close"]), color=C["orange"], alpha=0.10, lw=0, label="hold-out window starts and their windows")
+    ax.axvspan(pd.Timestamp(sp["hold_out"]["first_start"]), pd.Timestamp(sp["data_close"]), color=C["orange"], alpha=0.10, lw=0, label="hold-out windows")
     ax.set_yscale("log")
     ax.set_yticks([0.25, 0.5, 1, 2, 5, 12])
     ax.set_yticklabels(["0.25", "0.5", "1", "2", "5", "12"])
