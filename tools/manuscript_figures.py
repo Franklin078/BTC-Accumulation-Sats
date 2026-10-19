@@ -95,7 +95,7 @@ def fig_drawdown(p: pd.Series) -> None:
     ax.set_title("Drawdown from the trailing 365-day high, per cent")
     ax.set_ylabel("per cent below the 365-day high")
     mark_halvings(ax)
-    ax.legend(loc="lower left")
+    ax.legend(loc="lower left", frameon=True, facecolor="white", edgecolor="none", framealpha=0.9)
     save(fig, "fig_drawdown")
 
 
