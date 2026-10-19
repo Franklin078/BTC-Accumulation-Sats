@@ -1,0 +1,15 @@
+{
+  "from": "2018-01-01",
+  "to": "2026-08-24",
+  "daily_log_return_mean_pct": 0.056003911640794636,
+  "daily_log_return_sd_pct": 3.3907087122767425,
+  "skewness": -0.9432731970210816,
+  "excess_kurtosis": 14.91587657590748,
+  "share_beyond_3_sd": 0.019005384859043396,
+  "share_beyond_3_sd_if_normal": 0.0027,
+  "vol30_median_pct": 53.780145612551436,
+  "vol30_max_pct": 201.56039222276343,
+  "vol30_max_date": "2020-04-06",
+  "vol30_min_pct": 16.172247011555307,
+  "max_over_median": 3.747858804155458
+}

@@ -1,0 +1,14 @@
+{
+  "Uniform DCA": {
+    "windows": 2793,
+    "max_abs_difference_to_committed": 0.0
+  },
+  "Tournament 2025 reference": {
+    "windows": 2793,
+    "max_abs_difference_to_committed": 3.552713678800501e-15
+  },
+  "Upstream 2026 baseline (200-MA)": {
+    "windows": 2793,
+    "max_abs_difference_to_committed": 0.0
+  }
+}

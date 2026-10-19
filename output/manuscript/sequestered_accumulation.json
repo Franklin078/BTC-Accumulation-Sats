@@ -1,0 +1,47 @@
+{
+  "budget_dollars": 1000000.0,
+  "first_window": {
+    "window": "2025-09-01 \u2192 2026-09-01",
+    "days": 366,
+    "daily_dollars": 2732.24043715847,
+    "uniform_spd": 1264.773291182339,
+    "model_spd": 1366.7209444957314,
+    "uniform_btc": 12.647732911823391,
+    "model_btc": 13.667209444957313,
+    "extra_btc": 1.0194765331339226,
+    "edge_pct": 8.060547611508252,
+    "uniform_percentile": 51.08822233934627,
+    "model_percentile": 62.321576022490255
+  },
+  "first_window_prices": {
+    "start_date": "2025-09-01",
+    "start_price": 108992.324614863,
+    "max_price": 124824.453666861,
+    "max_price_date": "2025-10-06",
+    "min_price": 58525.0753614845,
+    "min_price_date": "2026-06-30",
+    "end_price": 77407.7011547107,
+    "uniform_effective_price_per_btc": 79065.5532475055,
+    "model_effective_price_per_btc": 73167.82581165187
+  },
+  "all_windows": {
+    "count": 14,
+    "edge_pct_min": 5.880645217827829,
+    "edge_pct_max": 8.060547611508252,
+    "all_won": true,
+    "overlap_note": "the 14 windows start on consecutive days and share 352 to 365 of their 366 days; they are one episode, not fourteen"
+  },
+  "reading": {
+    "windows": 14.0,
+    "win_rate": 100.0,
+    "rw_spd_pct": 61.27564663596657,
+    "score": 80.63782331798328,
+    "mean_pct": 61.46016562754467,
+    "uniform_rw_spd_pct": 52.00093065402899,
+    "mean_excess": 9.650556823909042,
+    "min_excess": 8.283800680264427,
+    "regime": "S",
+    "start": "2025-09-01",
+    "end": "2026-09-14"
+  }
+}

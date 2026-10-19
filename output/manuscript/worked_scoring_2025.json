@@ -1,0 +1,29 @@
+{
+  "window": "2025-01-01 \u2192 2026-01-01",
+  "days": 366,
+  "note": "sats per dollar on day d = 1e8 / price_d; uniform DCA's window SPD is the plain mean of the daily values; the percentile places it between the window's worst and best single-day values",
+  "uniform_spd": 997.9180372002133,
+  "min_spd": 801.1250765566017,
+  "min_spd_date": "2025-10-06",
+  "price_at_min_spd": 124824.453666861,
+  "max_spd": 1309.7331721889386,
+  "max_spd_date": "2025-04-08",
+  "price_at_max_spd": 76351.4295303916,
+  "uniform_percentile": 38.69245541578432,
+  "start_price": 94455.7965718878,
+  "end_price": 88684.2178474576,
+  "check_against_committed_uniform_table": {
+    "uniform_spd": 997.9180372002132,
+    "uniform_percentile": 38.69245541578432,
+    "max_abs_difference": 1.1368683772161603e-13
+  },
+  "final_model_on_this_window": {
+    "dynamic_spd": 988.196047210918,
+    "dynamic_percentile": 36.78096598555645,
+    "excess_percentile": -1.9114894302278744
+  },
+  "btc_per_million_dollars": {
+    "uniform": 9.979180372002133,
+    "final_model": 9.88196047210918
+  }
+}

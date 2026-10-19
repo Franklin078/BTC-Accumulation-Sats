@@ -1,0 +1,13 @@
+{
+  "best": "shape=pace m_max=12.0 b=0.0",
+  "best_metric": 73.12480339564198,
+  "second": "shape=pace m_max=12.0 b=0.3",
+  "second_metric": 73.07469641870696,
+  "margin_over_second": 0.050106976935012426,
+  "ceiling_5_same_shape": "shape=pace m_max=5.0 b=0.0",
+  "ceiling_5_metric": 71.14144885307145,
+  "gain_from_ceiling_5_to_12": 1.983354542570524,
+  "best_tailpay": "shape=tailpay m_max=12.0 b=0.0",
+  "best_tailpay_metric": 61.78126471175481,
+  "configurations": 12
+}
