@@ -153,7 +153,7 @@ def fig_feature_hist(df: pd.DataFrame) -> None:
         ("cycle_pos", X["cycle_pos"], "(c) Cycle position\ncos(2 pi d / 1461)"),
         ("ma_gap", X["ma_gap"], "(d) 200-day moving-average gap\nprice / 200-day mean, minus 1"),
         ("drawdown", X["drawdown"], "(e) Drawdown\nprice / 365-day high, minus 1"),
-        ("mvrv_z", base["f_mvrv_z"].clip(-3, 3), "(f) MVRV z-score, clipped at -3 and 3\n365-day rolling standardisation"),
+        ("mvrv_z", base["f_mvrv_z"].clip(-3, 3), "(f) MVRV z-score in [-3, 3]\n365-day rolling standardisation"),
     ]
     fig, axes = plt.subplots(2, 3, figsize=(WIDTH, 5.0), gridspec_kw={"wspace": 0.45, "hspace": 0.55})
     cols = [C["blue"], C["blue"], C["blue"], C["orange"], C["orange"], C["orange"]]

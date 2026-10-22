@@ -29,7 +29,7 @@
     "edge_pct_min": 5.880645217827829,
     "edge_pct_max": 8.060547611508252,
     "all_won": true,
-    "overlap_note": "the 14 windows start on consecutive days and share 352 to 365 of their 366 days; they are one episode, not fourteen"
+    "overlap_note": "the 14 windows start on consecutive days and share 353 to 365 of their 366 days; they are one episode, not fourteen"
   },
   "reading": {
     "windows": 14.0,

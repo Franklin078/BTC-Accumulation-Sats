@@ -517,7 +517,7 @@ def sequestered(df_full: pd.DataFrame) -> dict:
                                    "min_price": price.min(), "min_price_date": price.idxmin().strftime("%Y-%m-%d"), "end_price": price.iloc[-1],
                                    "uniform_effective_price_per_btc": budget / first["uniform_btc"], "model_effective_price_per_btc": budget / first["model_btc"]},
            "all_windows": {"count": int(len(acc)), "edge_pct_min": acc["edge_pct"].min(), "edge_pct_max": acc["edge_pct"].max(), "all_won": bool((acc["edge_pct"] > 0).all()),
-                           "overlap_note": "the 14 windows start on consecutive days and share 352 to 365 of their 366 days; they are one episode, not fourteen"},
+                           "overlap_note": "the 14 windows start on consecutive days and share 353 to 365 of their 366 days; they are one episode, not fourteen"},
            "reading": json.loads((ROOT / "output" / "final_reading.json").read_text(encoding="utf8"))["candidates"]["Candidate v5 (v4 signal, ceiling 12, round 6)"]}
     save_csv("sequestered_accumulation.csv", acc, "the 14 sequestered windows in accumulation terms on a $1,000,000 budget, from the committed one-time reading table")
     save_json("sequestered_accumulation.json", out, "the first sequestered window in dollars, BTC and prices, from the committed reading and the frozen series")
